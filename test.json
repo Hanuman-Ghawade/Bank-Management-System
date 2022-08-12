@@ -1,13 +1,13 @@
 [
   {
-    "userId": 1,
     "name": "demo",
-    "age": "demo",
-    "contactNo": "demo",
-    "email": "demo",
-    "dateOfbirth": "demo",
-    "accountNo": 813,
+    "age": 23,
+    "contactNo": 9503429216,
+    "email": "fff",
+    "dateOfbirth": "fff",
+    "accountNo": 4237,
     "username": "demo",
-    "password": "demo"
+    "password": "demo",
+    "amount": 500
   }
 ]

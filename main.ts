@@ -5,132 +5,161 @@ const prompt = ps()
 
 // We Have created on user class 
 class User {
-    creteAccount = () => {
+
+    createAccount = () => {
         let check
         // Input for Name
-        var name: string = prompt(detail.name);
-        this.check(name);
-        // Input for age 
         do {
-            check = true ;
-            var age = prompt(detail.age) ;
-            let temp = Number(age) ;
-            if ((Number.isNaN(temp))){
-                console.log("Please enter valid age") ;
+            check = true;
+            var name: string = String(prompt(detail.name));
+            let temp = Number(name);
+            if (!(Number.isNaN(temp))) {
+                console.log("Please enter valid name");
                 check = false;
             }
-        } while (check == false) ;
+        } while (check == false);
 
+        // Input for age 
+        do {
+            check = true;
+            var age = parseInt(prompt(detail.age));
+            if ((Number.isNaN(age))) {
+                console.log("Please enter valid age");
+                check = false;
+            }
+
+        } while (check == false);
         // input for contact number 
 
         do {
-            check = true ;
-            var contactNo: number = prompt(detail.contactNo) ;
-            let temp = Number(contactNo) ;
-            if ((Number.isNaN(temp))){
-                console.log("Please enter valid Mobile number") ;
+            check = true;
+            var contactNo = parseInt(prompt(detail.contactNo));
+            let temp = Number(contactNo);
+            if (String(contactNo).length < 10) {
+                console.log("Please Enter 10 digit number ")
                 check = false;
+                if ((Number.isNaN(temp))) {
+                    console.log("Please enter valid Mobile number");
+                    check = false;
+                }
             }
-        } while (check == false) ;
+        } while (check == false);
 
         // input for email
         do {
-            check = true ;
-            var email: string = prompt(detail.email) ;
-            let temp = Number(email) ;
-            if (!(Number.isNaN(temp))){
-                console.log("Please enter valid Input ") ;
+            check = true;
+            var email: string = prompt(detail.email);
+            let temp = Number(email);
+            if (!(Number.isNaN(temp))) {
+                console.log("Please enter valid Input ");
                 check = false;
             }
-        } while (check == false) ;
+        } while (check == false);
 
         // Input for date of Birth 
         do {
-            check = true ;
-            var dateOfbirth: string = prompt(detail.dateOfBirth) ;
-            let temp = Number(email) ;
-            if (!(Number.isNaN(temp))){
-                console.log("Please enter valid Input ") ;
+            check = true;
+            var dateOfbirth: string = prompt(detail.dateOfBirth);
+            let temp = Number(email);
+            if (!(Number.isNaN(temp))) {
+                console.log("Please enter valid Input ");
                 check = false;
             }
-        } while (check == false) ; 
-        
+        } while (check == false);
+
+        // input for username
         do {
-            check = true ;
-            var username: string = prompt(detail.username) ;
-            let temp = Number(username) ;
-            if (!(Number.isNaN(temp))){
-                console.log("Please enter valid Input ") ;
+            check = true;
+            var username: string = prompt(detail.username);
+            let temp = Number(username);
+            if (!(Number.isNaN(temp))) {
+                console.log("Please enter valid Input ");
                 check = false;
             }
-        } while (check == false) ;  
-        var password: string = prompt(detail.password) ;
+        } while (check == false);
+        var amount = 0 ;
+        var password: string = prompt(detail.password);
         var accountNo: number = Math.floor((Math.random() * 10000) + 1); // 4 Digit account number 
-        return [{name, age, contactNo, email, dateOfbirth, accountNo, username, password }];
+        return { name, age, contactNo, email, dateOfbirth, accountNo, username, password ,amount};
     }
-
     showDetails = (userData) => {
-        const { name, contactNo, age, email, password, dateOfBirth, accountNo, username } = userData;
-
-        console.log(`User name is ${userData[0].name} . Contact number is  ${username} .Account No is ${accountNo}`)
-    }
-
-    public check = (input: any) => {
-        
+        var  check = true
+        do {
+            var userInputName: number = prompt(detail.userInput)
+            var userInputPass: number = prompt(detail.userPass);
+            for (let i = 0; i < userData.length; i++) {
+                if (userData[i].username == userInputName && userData[i].password == userInputPass) {
+                    console.log(" User name is ", userData[i].name,
+                        "Age of user is ", userData[i].age,
+                        "The account number of user is ", userData[i].accountNo,
+                        "Date of birth user is ", userData[i].dateOfbirth,
+                        "The amount in account is ", userData[i].amount
+                    ) ; check = true 
+                }
+                else{
+                    check = false
+                }
+            }
+        } while (check = false)      
     }
 }
 class Bank extends User {
 
-
-    deposit() {
-        let n = 0
-        while (n < 3) {
+    public deposit(depositId,ff) {
+            const path = require('path');
             var userInputName: string = prompt(detail.userInput)
             var userInputPass: number = prompt(detail.userPass)
-            if (userName == userInputName && userPass == userInputPass) {
-                let balance: number = 0
-                let amount: number = prompt(detail.deposit)
-                balance = balance + amount;
-                console.log(`You have deposited Rs ${amount} in your account .`)
-                return amount
-
-            } else if (n < 2) {
-                console.log("Please Enter correct details")
-            }
-            n++;
-            if (n >= 3) {
-                console.log("You have tried many times. Please try after some time .")
-            }
+            for (let i = 0; i < depositId.length; i++) {
+                if (depositId[i].username == userInputName && depositId[i].password == userInputPass) {
+                    let amount: number = Number(prompt(detail.deposit))
+                    let balance = Number(depositId[i].amount)
+                    balance = balance + amount;
+                    depositId[i].amount = balance;
+                    ff.writeFileSync(path.resolve(__dirname, 'test.json'), JSON.stringify(depositId, null, 2));
+                    console.log(`You have deposited Rs ${amount} in your account .`)
+                }
         }
     }
-
-    withdraw = (initialAmount) => {
-        let n = 0;
-        while (n < 3) {
-            var userInputName: number = prompt(detail.userInput)
-            var userInputPass: number = prompt(detail.userPass)
-            if (userName == userInputName && userPass == userInputPass) {
-
-                var withDraw: number = prompt(detail.withdraw)
-                if (withDraw > initialAmount) {
+    withdraw = (withdawId,fc) => {
+        const path = require('path');
+             var userInputName: number = prompt(detail.userInput)
+             var userInputPass: number = prompt(detail.userPass)
+        for (let i = 0; i < withdawId.length; i++) {
+            if (withdawId[i].username == userInputName && withdawId[i].password  == userInputPass) {
+                var withDraw: number = parseInt(prompt(detail.withdraw))
+                console.log(withdawId[i].amount)
+                if (withDraw > withdawId[i].amount) {
                     console.log(`Insuffient fund`);
                 } else {
-                    let balance: number = initialAmount - withDraw;
+                    console.log("The amount was withdrawn successfully.")
+                    let balance: number = withdawId[i].amount - withDraw;
+                    withdawId[i].amount = balance ;
+                    fc.writeFileSync(path.resolve(__dirname, 'test.json'), JSON.stringify(withdawId, null, 2));
+  
                     console.log(`The remaining balance in your account is ${balance}`)
                 }
-                break
-            } else if (n < 2) {
-                console.log("Please enter correct details")
-            }
-            n++
-            if (n >= 3) {
-                console.log("You have tried many times. Please try after some time .")
-            }
+                break   
+        }
+        // while (n < 3) {
+            
+        //     } else if (n < 2) {
+        //         console.log("Please enter correct details")
+        //     }
+        //     n++
+            // if (n >= 3) {
+            //     console.log("You have tried many times. Please try after some time .")
+            // }
         }
     }
-    view_balance() {
-        let balance
-        console.log(`The amount in your account is ${balance}`);
+    view_balance(viewBalanceId) {
+        var userInputName: number = prompt(detail.userInput)
+        var userInputPass: number = prompt(detail.userPass) ;
+        for (let i = 0; i < viewBalanceId.length; i++) {
+            if (viewBalanceId[i].username == userInputName && viewBalanceId[i].password  == userInputPass) {
+                let viewBalance = viewBalanceId[i].amount
+                console.log(`The Balance in your Account ${viewBalance}`)
+            }   
+        }
     }
 }
 
@@ -142,7 +171,7 @@ let user = new User();
 let bank = new Bank();
 
 do {
-     let userResponse: number = prompt(`Please select  Option :
+    let userResponse: number = prompt(`Please select  Option :
      1. Create New Account 
      2. Show Details 
      3. deposit 
@@ -150,10 +179,10 @@ do {
      5.view Balance
      6.exit
      `)
-      input  = Number(userResponse)
+    input = Number(userResponse)
     switch (input) {
-        case 1 : 
-            userDetails = user.creteAccount()
+        case 1:
+            userDetails = user.createAccount()
             const fs = require('fs');
             const path = require('path');
             let exitingData = fs.readFileSync('test.json');
@@ -167,23 +196,31 @@ do {
             const fss = require('fs');
             let rawdata = fss.readFileSync('test.json');
             let userData = JSON.parse(rawdata);
-            var userName = userData[0].username;
             user.showDetails(userData)
 
-            var userPass = userData[0].password;
             break
         case 3:
-            initialAmount = bank.deposit()
+            const ff = require('fs');
+            let depositFIle = ff.readFileSync('test.json');
+            let depositId = JSON.parse(depositFIle);
+            initialAmount = bank.deposit(depositId,ff)
+
             break
         case 4:
-            bank.withdraw(initialAmount)
+            const fc = require('fs');
+            let withdrawFile = fc.readFileSync('test.json');
+            let withdrawId = JSON.parse(withdrawFile);
+            bank.withdraw(withdrawId,fc)
             break
         case 5:
-            bank.view_balance()
+            const fa = require('fs');
+            let balanceFile = fa.readFileSync('test.json');
+            let viewBalanceId = JSON.parse(balanceFile);
+            bank.view_balance(viewBalanceId)
             break
-        default :
-        console.log("Please enter valid choice ")
+        default:
+            break
     }
-}while(input!=6)
+} while (input != 6)
 
 export { }
