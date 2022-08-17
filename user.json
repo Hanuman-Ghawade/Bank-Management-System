@@ -1,0 +1,26 @@
+[
+  {
+    "name": "Rakshada Pawar",
+    "age": 22,
+    "contactNo": 9877585223,
+    "email": "rakshada@gmail.com",
+    "dateOfbirth": "10-12-1999",
+    "accountNo": 5849,
+    "username": "rakshada",
+    "password": "rakshada",
+    "amount": 500,
+    "flag": true
+  },
+  {
+    "name": "Hanuman Ghawade",
+    "age": 28,
+    "contactNo": 9503429216,
+    "email": "hanuman@gmail.com",
+    "dateOfbirth": "10-11-1994",
+    "accountNo": 725,
+    "username": "hanuman",
+    "password": "9503",
+    "amount": 0,
+    "flag": false
+  }
+]
