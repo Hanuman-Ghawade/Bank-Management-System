@@ -11,6 +11,7 @@ export enum detail {
     password = "Please create a password :  ",
     deposit = "Please enter the amount of the deposit:  ",
     withdraw = "Please enter the amount to withdraw.:  ",
+    loanAmount = "Please enter the amount.:  ",
     userInput = "Please enter your user name.:  ",
     userPass = "Please enter your password.:   "
 }

@@ -23,27 +23,18 @@ var User = /** @class */ (function () {
             do {
                 check = true;
                 var age = parseInt(prompt(Enum_js_1.detail.age));
-                if ((Number.isNaN(age))) {
-                    console.log("Please enter valid age");
+                if (isNaN(age) || age < 18 || age > 80) {
+                    console.log("The age must be a number between 18 and 80");
                     check = false;
                 }
-                // else if (age < 18 && age > 85 ) {
-                //     console.log("You are not eligible for account creation.");
-                //     check = false;
-                // }
             } while (check == false);
-            // input details for contact number 
+            // input details for Mobile number 
             do {
                 check = true;
-                var contactNo = parseInt(prompt(Enum_js_1.detail.contactNo));
-                var temp = Number(contactNo);
-                if (String(contactNo).length < 10) {
-                    console.log("Please Enter 10 digit number ");
+                var mobileNumber = parseInt(prompt(Enum_js_1.detail.contactNo));
+                if (!mobileNumber || mobileNumber.toString().length != 10) {
+                    console.log("Please provide 10 Digit numeric value");
                     check = false;
-                    if ((Number.isNaN(temp))) {
-                        console.log("Please enter valid Mobile number");
-                        check = false;
-                    }
                 }
             } while (check == false);
             // input details  for email
@@ -52,16 +43,24 @@ var User = /** @class */ (function () {
                 check = true;
                 var email = prompt(Enum_js_1.detail.email);
                 if (email.match(pattern) === null) {
-                    check = false;
                     console.log("Please enter valid email");
+                    check = false;
                 }
             } while (check == false);
             // Input details for date of Birth 
             do {
                 var dateReg = /^\d{2}([./-])\d{2}\1\d{4}$/;
                 check = true;
-                var dateOfbirth = prompt(Enum_js_1.detail.dateOfBirth);
-                if (dateOfbirth.match(dateReg) == null) {
+                var birth = prompt(Enum_js_1.detail.dateOfBirth);
+                var ageMS = Date.parse(Date()) - Date.parse(birth);
+                var age_1 = new Date();
+                age_1.setTime(ageMS);
+                var ageYear = age_1.getFullYear() - 1970;
+                if (ageYear < 18 || ageYear > 80) {
+                    console.log("The age range should be between 18 and 80.");
+                    check = false;
+                }
+                else if (birth.match(dateReg) == null) {
                     console.log("Please enter valid date ");
                     check = false;
                 }
@@ -69,7 +68,7 @@ var User = /** @class */ (function () {
             // input details for username
             do {
                 check = true;
-                var username = prompt(Enum_js_1.detail.username);
+                var username = String(prompt(Enum_js_1.detail.username));
                 var temp = Number(username);
                 if (!(Number.isNaN(temp))) {
                     console.log("Please enter valid Input ");
@@ -84,8 +83,14 @@ var User = /** @class */ (function () {
             var accountNo = Math.floor((Math.random() * 10000) + 1); // 4 Digit account number 
             // let set flag for authorization 
             var flag = true;
+            // default account type will be Saving
+            var accountType = "Saving";
+            // Loan section 
+            var LoanApprove = false;
+            // Loan Amount 
+            var Loanamount = 0;
             // return the all input 
-            return { name: name, age: age, contactNo: contactNo, email: email, dateOfbirth: dateOfbirth, accountNo: accountNo, username: username, password: password, amount: amount, flag: flag };
+            return { name: name, age: age, mobileNumber: mobileNumber, email: email, birth: birth, accountNo: accountNo, accountType: accountType, username: username, password: password, amount: amount, LoanApprove: LoanApprove, Loanamount: Loanamount, flag: flag };
         };
         // Details of the customer 
         this.showDetails = function (userData) {
@@ -119,37 +124,38 @@ var Admin = /** @class */ (function () {
         var fss = require('fs');
         console.table(JSON.parse(fss.readFileSync('user.json')));
     };
-    Admin.prototype.zeroBalanceHolder = function () {
-        var fz = require('fs');
-        var data = fz.readFileSync('user.json');
-        var zero = JSON.parse(data);
-        var zeroBalance = zero.filter(function (ele) {
-            return ele.amount == 0;
-        });
-        console.table(zeroBalance);
-    };
-    Admin.prototype.one_Lakh_Holder = function () {
-        var fz = require('fs');
-        var data = fz.readFileSync('user.json');
-        var zero = JSON.parse(data);
-        var oneLakh = zero.filter(function (ele) {
-            return ele.amount > 0 && ele.amount < 100000;
-        });
-        console.table(oneLakh);
-    };
-    Admin.prototype.more_Than_1lakh = function () {
-        var fz = require('fs');
-        var data = fz.readFileSync('user.json');
-        var zero = JSON.parse(data);
-        var more_than_oneLakh = zero.filter(function (ele) {
-            return ele.amount >= 100000;
-        });
-        console.table(more_than_oneLakh);
+    Admin.prototype.accountHolderBasedOnAmount = function () {
+        var response = parseInt(prompt("Please choose  one option \n    1. Rs.0 amount Holder\n    2. Rs. < 1 Lakh amount Holder\n    3. Rs. > 1 Lakh amount Holder\n    "));
+        console.clear();
+        switch (response) {
+            case 1:
+                var fs = require('fs');
+                var zeroBalance = JSON.parse(fs.readFileSync('user.json'));
+                var zeroBalanceData = zeroBalance.filter(function (ele) {
+                    return ele.amount == 0;
+                });
+                console.table(zeroBalanceData);
+                break;
+            case 2:
+                var fz = require('fs');
+                var one_Lakh_Holder = JSON.parse(fz.readFileSync('user.json'));
+                var oneLakh = one_Lakh_Holder.filter(function (ele) {
+                    return ele.amount > 0 && ele.amount < 100000;
+                });
+                console.table(oneLakh);
+                break;
+            case 3:
+                var fc = require('fs');
+                var zero = JSON.parse(fc.readFileSync('user.json'));
+                var more_than_oneLakh = zero.filter(function (ele) {
+                    return ele.amount >= 100000;
+                });
+                console.table(more_than_oneLakh);
+        }
     };
     Admin.prototype.deleteAccount = function () {
         var fz = require('fs');
-        var data = fz.readFileSync('user.json');
-        var zero = JSON.parse(data);
+        var zero = JSON.parse(fz.readFileSync('user.json'));
         var path = require('path');
         var removeAmount = function (zero, amount) {
             var requiredIndex = zero.findIndex(function (el) {
@@ -165,40 +171,81 @@ var Admin = /** @class */ (function () {
         fz.writeFileSync(path.resolve(__dirname, 'user.json'), JSON.stringify(zero, null, 2));
         console.log("Account deleted Successfully");
     };
-    Admin.prototype.isAuthenticate = function () {
-        var fz = require('fs');
-        var data = fz.readFileSync('user.json');
-        var auth = JSON.parse(data);
-        var path = require('path');
-        for (var i = 0; i < auth.length; i++) {
-            if (auth[i].amount === 0) {
-                auth[i].flag = false;
-                fz.writeFileSync(path.resolve(__dirname, 'user.json'), JSON.stringify(auth, null, 2));
-            }
-            else {
-                auth[i].flag = true;
-                fz.writeFileSync(path.resolve(__dirname, 'user.json'), JSON.stringify(auth, null, 2));
-            }
-        }
-        console.log("All accounts authenticated successfully ");
-    };
-    Admin.prototype.authorizeUsers = function () {
+    Admin.prototype.SavingAccount = function () {
         var fz = require('fs');
         var data = fz.readFileSync('user.json');
         var zero = JSON.parse(data);
         var authorizedUser = zero.filter(function (ele) {
-            return ele.flag == true;
+            return ele.accountType == "Saving";
         });
         console.table(authorizedUser);
     };
-    Admin.prototype.unauthorizeUsers = function () {
+    Admin.prototype.CurrentAccount = function () {
         var fz = require('fs');
         var data = fz.readFileSync('user.json');
         var zero = JSON.parse(data);
-        var unauthorizedUser = zero.filter(function (ele) {
-            return ele.flag == false;
+        var currentaccount = zero.filter(function (ele) {
+            return ele.accountType == "Current";
         });
-        console.table(unauthorizedUser);
+        console.table(currentaccount);
+    };
+    Admin.prototype.AccountConvert = function () {
+        var fz = require('fs');
+        var data = fz.readFileSync('user.json');
+        var accountTypeCheck = JSON.parse(data);
+        var path = require('path');
+        for (var i = 0; i < accountTypeCheck.length; i++) {
+            if (accountTypeCheck[i].amount > 100000) {
+                accountTypeCheck[i].accountType = "Current";
+                fz.writeFileSync(path.resolve(__dirname, 'user.json'), JSON.stringify(accountTypeCheck, null, 2));
+            }
+            else {
+                accountTypeCheck[i].accountType = "Saving";
+                fz.writeFileSync(path.resolve(__dirname, 'user.json'), JSON.stringify(accountTypeCheck, null, 2));
+            }
+        }
+        console.log("The account type changed successfully.");
+    };
+    Admin.prototype.ApproveLoan = function () {
+        var fz = require('fs');
+        var data = fz.readFileSync('user.json');
+        var ApproveLoan = JSON.parse(data);
+        var path = require('path');
+        for (var i = 0; i < ApproveLoan.length; i++) {
+            if (ApproveLoan[i].Loanamount > 1 && ApproveLoan[i].LoanApprove == false) {
+                ApproveLoan[i].LoanApprove = true;
+                ApproveLoan[i].amount = ApproveLoan[i].amount + ApproveLoan[i].Loanamount;
+                fz.writeFileSync(path.resolve(__dirname, 'user.json'), JSON.stringify(ApproveLoan, null, 2));
+            }
+            else if (ApproveLoan[i].Loanamount < 1 && ApproveLoan[i].LoanApprove == true) {
+                ApproveLoan[i].LoanApprove = false;
+                fz.writeFileSync(path.resolve(__dirname, 'user.json'), JSON.stringify(ApproveLoan, null, 2));
+            }
+        }
+        console.log("The loan was approved successfully.");
+    };
+    Admin.prototype.LoanHolder = function () {
+        var fz = require('fs');
+        var data = fz.readFileSync('user.json');
+        var zero = JSON.parse(data);
+        var loanUser = zero.filter(function (ele) {
+            return ele.Loanamount > 0;
+        });
+        console.table(loanUser);
+    };
+    Admin.prototype.BankAmount = function () {
+        var fz = require('fs');
+        var data = fz.readFileSync('user.json');
+        var BankAmount = JSON.parse(data);
+        var path = require('path');
+        var BankCash = 0;
+        var LoanCash = 0;
+        for (var i = 0; i < BankAmount.length; i++) {
+            BankCash += BankAmount[i].amount;
+            LoanCash += BankAmount[i].Loanamount;
+        }
+        console.log("The total amount in your bank is  Rs.".concat(BankCash));
+        console.log("The total amount lent to the customer is Rs.".concat(LoanCash));
     };
     return Admin;
 }());
@@ -206,44 +253,60 @@ var Admin = /** @class */ (function () {
 var Bank = /** @class */ (function () {
     function Bank() {
         this.withdraw = function (withdawId, fc) {
+            var check;
             var path = require('path');
             var userInputName = prompt(Enum_js_1.detail.userInput);
             var userInputPass = prompt(Enum_js_1.detail.userPass);
-            for (var i = 0; i < withdawId.length; i++) {
-                if (withdawId[i].username == userInputName && withdawId[i].password == userInputPass) {
-                    var withDraw = parseInt(prompt(Enum_js_1.detail.withdraw));
-                    if (withDraw < 1) {
-                        console.log("Please enter valid amount");
+            do {
+                check = true;
+                for (var i = 0; i < withdawId.length; i++) {
+                    if (withdawId[i].username == userInputName && withdawId[i].password == userInputPass) {
+                        var withDraw = Number(parseInt(prompt(Enum_js_1.detail.withdraw)));
+                        if (Number.isNaN(withDraw) || withDraw < 1) {
+                            console.log("Please enter valid amount");
+                            check = false;
+                        }
+                        else if (withDraw > withdawId[i].amount) {
+                            console.log("Insufficient fund");
+                        }
+                        else {
+                            console.log("The amount was withdrawn successfully.");
+                            var balance = withdawId[i].amount - withDraw;
+                            withdawId[i].amount = balance;
+                            fc.writeFileSync(path.resolve(__dirname, 'user.json'), JSON.stringify(withdawId, null, 2));
+                            console.log("The remaining balance in your account is ".concat(balance));
+                        }
+                        break;
                     }
-                    else if (withDraw > withdawId[i].amount) {
-                        console.log("Insufficient fund");
-                    }
-                    else {
-                        console.log("The amount was withdrawn successfully.");
-                        var balance = withdawId[i].amount - withDraw;
-                        withdawId[i].amount = balance;
-                        fc.writeFileSync(path.resolve(__dirname, 'user.json'), JSON.stringify(withdawId, null, 2));
-                        console.log("The remaining balance in your account is ".concat(balance));
-                    }
-                    break;
                 }
-            }
+            } while (check == false);
         };
     }
     Bank.prototype.deposit = function (depositId, ff) {
+        var check;
         var path = require('path');
         var userInputName = prompt(Enum_js_1.detail.userInput);
         var userInputPass = prompt(Enum_js_1.detail.userPass);
-        for (var i = 0; i < depositId.length; i++) {
-            if (depositId[i].username == userInputName && depositId[i].password == userInputPass) {
-                var amount = Number(prompt(Enum_js_1.detail.deposit));
-                var balance = Number(depositId[i].amount);
-                balance = balance + amount;
-                depositId[i].amount = balance;
-                ff.writeFileSync(path.resolve(__dirname, 'user.json'), JSON.stringify(depositId, null, 2));
-                console.log("You have deposited Rs ".concat(amount, " in your account ."));
+        do {
+            check = true;
+            for (var i = 0; i < depositId.length; i++) {
+                if (depositId[i].username == userInputName && depositId[i].password == userInputPass) {
+                    var amount = Number(parseInt(prompt(Enum_js_1.detail.deposit)));
+                    var balance = Number(depositId[i].amount);
+                    if (Number.isNaN(amount) || amount < 1 || String(amount).length >= 7) {
+                        console.log("Please enter valid amount");
+                        check = false;
+                    }
+                    else {
+                        balance = balance + amount;
+                        depositId[i].amount = balance;
+                        ff.writeFileSync(path.resolve(__dirname, 'user.json'), JSON.stringify(depositId, null, 2));
+                        console.log("You have deposited Rs ".concat(amount, " in your account ."));
+                        check = true;
+                    }
+                }
             }
-        }
+        } while (check == false);
     };
     Bank.prototype.view_balance = function (viewBalanceId) {
         var userInputName = prompt(Enum_js_1.detail.userInput);
@@ -253,6 +316,98 @@ var Bank = /** @class */ (function () {
                 var viewBalance = viewBalanceId[i].amount;
                 console.log("The amount in your account ".concat(viewBalance));
             }
+        }
+    };
+    Bank.prototype.LoanSection = function () {
+        console.log(" Welcome to the loan Section ");
+        var fs = require('fs');
+        var path = require('path');
+        var loanData = fs.readFileSync('user.json');
+        var loanInformation = JSON.parse(loanData);
+        var loanResponse = parseInt(prompt("Please choose  one option \n    1. Apply for Loan (Upto 5 Lakh)\n    2. Loan Status \n    3. Paid Loan\n    4. Loan Amount\n    5. Exit\n    "));
+        console.clear();
+        var check;
+        switch (loanResponse) {
+            case 1:
+                var userInputName = prompt(Enum_js_1.detail.userInput);
+                var userInputPass = prompt(Enum_js_1.detail.userPass);
+                do {
+                    check = true;
+                    for (var i = 0; i < loanInformation.length; i++) {
+                        if (loanInformation[i].username == userInputName && loanInformation[i].password == userInputPass) {
+                            var LoanAmount = Number(parseInt(prompt(Enum_js_1.detail.loanAmount)));
+                            if (Number.isNaN(LoanAmount) || LoanAmount < 1 || LoanAmount > 500000) {
+                                console.log("Please enter valid amount");
+                                check = false;
+                            }
+                            else if (loanInformation[i].LoanApprove == true) {
+                                console.log("You have already taken the loan.");
+                                break;
+                            }
+                            else {
+                                console.log("You successfully applied for a loan.");
+                                loanInformation[i].Loanamount = LoanAmount;
+                                fs.writeFileSync(path.resolve(__dirname, 'user.json'), JSON.stringify(loanInformation, null, 2));
+                                console.log("Your Loan  balance is ".concat(loanInformation[i].Loanamount));
+                            }
+                        }
+                    }
+                } while (check == false);
+                break;
+            case 2:
+                var userInputName = prompt(Enum_js_1.detail.userInput);
+                var userInputPass = prompt(Enum_js_1.detail.userPass);
+                for (var i = 0; i < loanInformation.length; i++) {
+                    if (loanInformation[i].username == userInputName && loanInformation[i].password == userInputPass) {
+                        if (loanInformation[i].LoanApprove == false) {
+                            console.log("Your loan is not approved. ");
+                        }
+                        else {
+                            console.log("Your loan is approved ");
+                        }
+                    }
+                }
+                break;
+            case 3:
+                var userInputName = prompt(Enum_js_1.detail.userInput);
+                var userInputPass = prompt(Enum_js_1.detail.userPass);
+                do {
+                    check = true;
+                    for (var i = 0; i < loanInformation.length; i++) {
+                        if (loanInformation[i].username == userInputName && loanInformation[i].password == userInputPass) {
+                            var paidAmount = Number(parseInt(prompt(Enum_js_1.detail.loanAmount)));
+                            if (Number.isNaN(paidAmount) || paidAmount < 1) {
+                                console.log("Please enter valid amount");
+                                check = false;
+                            }
+                            else if (loanInformation[i].Loanamount < paidAmount) {
+                                console.log("You are entering an amount greater than the loan amount.");
+                            }
+                            else {
+                                console.log("You successfully paid the loan.");
+                                var balance = loanInformation[i].Loanamount - paidAmount;
+                                loanInformation[i].Loanamount = balance;
+                                if (balance === 0) {
+                                    loanInformation[i].LoanApprove = false;
+                                }
+                                fs.writeFileSync(path.resolve(__dirname, 'user.json'), JSON.stringify(loanInformation, null, 2));
+                            }
+                        }
+                    }
+                } while (check == false);
+                break;
+            case 4:
+                var userInputName = prompt(Enum_js_1.detail.userInput);
+                var userInputPass = prompt(Enum_js_1.detail.userPass);
+                for (var i = 0; i < loanInformation.length; i++) {
+                    if (loanInformation[i].username == userInputName && loanInformation[i].password == userInputPass) {
+                        var viewBalance = loanInformation[i].Loanamount;
+                        console.log("You have taken a Rs.".concat(viewBalance, " loan from the bank"));
+                    }
+                }
+                break;
+            default:
+                break;
         }
     };
     return Bank;
@@ -266,12 +421,12 @@ var user = new User();
 var bank = new Bank();
 var admin = new Admin();
 do {
-    var response = parseInt(prompt("Please choose  one option \n    1. User Class \n    2. Admin Class \n    "));
+    var response = parseInt(prompt("Please choose  one option \n    1. User Login\n    2. Admin Login\n    "));
     console.clear();
     if (response === 1) {
         console.clear();
         console.log("******* User Login *****");
-        var userResponse = parseInt(prompt("Please select  option :\n    \n     1. Create a New Account\n     2. Show Details \n     3. Deposit \n     4. Withdraw\n     5. View Balance\n     6. Exit\n\n     "));
+        var userResponse = parseInt(prompt("Please select  option :\n    \n     1. Create a New Account\n     2. Show Details \n     3. Deposit (Upto 7 Digit Amount)\n     4. Withdraw\n     5. View Balance\n     6. Loan Section \n     7. Exit\n\n     "));
         console.clear();
         switch (userResponse) {
             case 1:
@@ -279,9 +434,9 @@ do {
                 var fs = require('fs');
                 var path = require('path');
                 var exitingData = fs.readFileSync('user.json');
-                var userDatas = JSON.parse(exitingData);
-                userDatas.push(userDetails);
-                fs.writeFileSync(path.resolve(__dirname, 'user.json'), JSON.stringify(userDatas, null, 2));
+                var userInformation = JSON.parse(exitingData);
+                userInformation.push(userDetails);
+                fs.writeFileSync(path.resolve(__dirname, 'user.json'), JSON.stringify(userInformation, null, 2));
                 console.log("Account created successfully");
                 break;
             case 2:
@@ -308,6 +463,9 @@ do {
                 var viewBalanceId = JSON.parse(balanceFile);
                 bank.view_balance(viewBalanceId);
                 break;
+            case 6:
+                bank.LoanSection();
+                break;
             default:
                 break;
         }
@@ -323,39 +481,40 @@ do {
         if (adminDetailsId[0].adminUserName == userInputName && adminDetailsId[0].adminPass == userInputPass) {
             console.log("Admin login successfully done");
             do {
-                adminResponse = parseInt(prompt("Please choose option :\n\n     1. UserDetails \n     2. Rs.0 Balance Holder User\n     3. < 1L Amount holder User\n     4. > 1L Amount holder User\n     5. User Authentication\n     6. Authorized User  \n     7. Unauthorized User (\n     8. Delete Account\n     9.exit\n\n     "));
+                adminResponse = parseInt(prompt("Please choose option :\n\n     1. User Details \n     2. Account Holder details Based On amount\n     3. Saving Accounts  (Amount less than 1 Lakh)\n     4. Current Accounts (Amount more than 1 Lakh)\n     5. Account Convert  (Saving >< Current )\n     6. Delete Account   (Zero Balance Holder)\n     7. Approve Loan \n     8. Loan Holder\n     9. Bank Statement \n    10. Exit\n\n     "));
                 console.clear();
                 switch (adminResponse) {
                     case 1:
                         admin.userDetails();
                         break;
                     case 2:
-                        admin.zeroBalanceHolder();
+                        admin.accountHolderBasedOnAmount();
                         break;
                     case 3:
-                        admin.one_Lakh_Holder();
+                        admin.SavingAccount();
                         break;
                     case 4:
-                        admin.more_Than_1lakh();
+                        admin.CurrentAccount();
                         break;
                     case 5:
-                        admin.isAuthenticate();
-                        break;
+                        admin.AccountConvert();
                     case 6:
-                        admin.authorizeUsers();
-                        break;
-                    case 7:
-                        admin.unauthorizeUsers();
-                        break;
-                    case 8:
                         admin.deleteAccount();
+                    case 7:
+                        admin.ApproveLoan();
+                    case 8:
+                        admin.LoanHolder();
+                        break;
+                    case 9:
+                        admin.BankAmount();
+                        break;
                     default:
                         break;
                 }
-            } while (adminResponse != 9);
+            } while (adminResponse != 10);
         }
         else {
             console.log("Please enter valid input ");
         }
     }
-} while (input != 6);
+} while (input != 7);

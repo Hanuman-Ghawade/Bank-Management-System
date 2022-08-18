@@ -24,30 +24,20 @@ class User {
         do {
             check = true;
             var age = parseInt(prompt(detail.age));
-            if ((Number.isNaN(age))) {
-                console.log("Please enter valid age");
-                check = false;
+            if (isNaN(age) || age < 18 || age > 80) {
+                console.log("The age must be a number between 18 and 80");
+                check = false
             }
-            // else if (age < 18 && age > 85 ) {
-            //     console.log("You are not eligible for account creation.");
-            //     check = false;
-            // }
-
         } while (check == false);
 
-        // input details for contact number 
+        // input details for Mobile number 
 
         do {
             check = true;
-            var contactNo = parseInt(prompt(detail.contactNo));
-            let temp = Number(contactNo);
-            if (String(contactNo).length < 10) {
-                console.log("Please Enter 10 digit number ")
+            var mobileNumber = parseInt(prompt(detail.contactNo));
+            if (!mobileNumber || mobileNumber.toString().length != 10) {
+                console.log("Please provide 10 Digit numeric value");
                 check = false;
-                if ((Number.isNaN(temp))) {
-                    console.log("Please enter valid Mobile number");
-                    check = false;
-                }
             }
         } while (check == false);
 
@@ -57,8 +47,8 @@ class User {
             check = true;
             var email = prompt(detail.email);
             if (email.match(pattern) === null) {
-                check = false
-                console.log("Please enter valid email")
+                console.log("Please enter valid email");
+                check = false;
             }
 
         } while (check == false);
@@ -68,8 +58,16 @@ class User {
         do {
             var dateReg = /^\d{2}([./-])\d{2}\1\d{4}$/
             check = true;
-            var dateOfbirth = prompt(detail.dateOfBirth);
-            if (dateOfbirth.match(dateReg) == null) {
+            var birth = prompt(detail.dateOfBirth);
+            var ageMS = Date.parse(Date()) - Date.parse(birth);
+            let age = new Date();
+            age.setTime(ageMS);
+            let ageYear = age.getFullYear() - 1970;
+            if (ageYear < 18 || ageYear > 80) {
+                console.log("The age range should be between 18 and 80.");
+                check = false;
+            }
+            else if (birth.match(dateReg) == null) {
                 console.log("Please enter valid date ");
                 check = false;
             }
@@ -79,7 +77,7 @@ class User {
 
         do {
             check = true;
-            var username: string = prompt(detail.username);
+            var username: string = String(prompt(detail.username));
             let temp = Number(username);
             if (!(Number.isNaN(temp))) {
                 console.log("Please enter valid Input ");
@@ -100,15 +98,27 @@ class User {
 
         let flag = true;
 
+        // default account type will be Saving
+
+        let accountType = "Saving";
+
+        // Loan section 
+
+        let LoanApprove = false;
+
+        // Loan Amount 
+
+        let Loanamount = 0;
+
         // return the all input 
 
-        return { name, age, contactNo, email, dateOfbirth, accountNo, username, password, amount, flag };
+        return { name, age, mobileNumber, email, birth, accountNo, accountType, username, password, amount, LoanApprove, Loanamount, flag };
     }
 
     // Details of the customer 
 
     showDetails = (userData) => {
-        let check
+        let check: boolean;
         let no = 0;
         var userInputName;
         var userInputPass
@@ -138,30 +148,40 @@ class Admin {
         console.table(JSON.parse(fss.readFileSync('user.json')))
 
     }
-    zeroBalanceHolder() {
-        const fz = require('fs');
-        let zero = JSON.parse(fz.readFileSync('user.json'));
-        var zeroBalance = zero.filter(function (ele) {
-            return ele.amount == 0;
-        })
-        console.table(zeroBalance)
-    }
-    one_Lakh_Holder() {
-        const fz = require('fs');
-        let zero = JSON.parse(fz.readFileSync('user.json'));
-        var oneLakh = zero.filter(function (ele) {
-            return ele.amount > 0 && ele.amount < 100000;
-        })
-        console.table(oneLakh)
-    }
+    accountHolderBasedOnAmount() {
+        let response = parseInt(prompt(`Please choose  one option 
+    1. Rs.0 amount Holder
+    2. Rs. < 1 Lakh amount Holder
+    3. Rs. > 1 Lakh amount Holder
+    `))
+        console.clear()
+        switch (response) {
+            case 1:
+                let fs = require('fs');
+                let zeroBalance = JSON.parse(fs.readFileSync('user.json'));
+                var zeroBalanceData = zeroBalance.filter(function (ele) {
+                    return ele.amount == 0;
+                })
+                console.table(zeroBalanceData)
+                break
+            case 2:
+                const fz = require('fs');
+                let one_Lakh_Holder = JSON.parse(fz.readFileSync('user.json'));
+                var oneLakh = one_Lakh_Holder.filter(function (ele) {
+                    return ele.amount > 0 && ele.amount < 100000;
+                })
+                console.table(oneLakh)
+                break
+            case 3:
+                const fc = require('fs');
+                let zero = JSON.parse(fc.readFileSync('user.json'));
+                var more_than_oneLakh = zero.filter(function (ele) {
+                    return ele.amount >= 100000;
+                })
+                console.table(more_than_oneLakh);
 
-    more_Than_1lakh() {
-        const fz = require('fs');
-        let zero = JSON.parse(fz.readFileSync('user.json'));
-        var more_than_oneLakh = zero.filter(function (ele) {
-            return ele.amount >= 100000;
-        })
-        console.table(more_than_oneLakh);
+
+        }
     }
     deleteAccount() {
         const fz = require('fs');
@@ -181,89 +201,154 @@ class Admin {
         fz.writeFileSync(path.resolve(__dirname, 'user.json'), JSON.stringify(zero, null, 2));
         console.log("Account deleted Successfully")
     }
-    isAuthenticate() {
-        const fz = require('fs');
-        let data = fz.readFileSync('user.json');
-        let auth = JSON.parse(data);
-        const path = require('path');
-        for (let i = 0; i < auth.length; i++) {
-            if (auth[i].amount === 0) {
-                auth[i].flag = false
-                fz.writeFileSync(path.resolve(__dirname, 'user.json'), JSON.stringify(auth, null, 2));
-
-            } else {
-                auth[i].flag = true
-                fz.writeFileSync(path.resolve(__dirname, 'user.json'), JSON.stringify(auth, null, 2));
-
-            }
-
-        }
-        console.log("All accounts authenticated successfully ")
-    }
-    authorizeUsers() {
+    SavingAccount() {
         const fz = require('fs');
         let data = fz.readFileSync('user.json');
         let zero = JSON.parse(data);
         var authorizedUser = zero.filter(function (ele) {
-            return ele.flag == true;
+            return ele.accountType == "Saving";
         })
         console.table(authorizedUser);
     }
-    unauthorizeUsers() {
+    CurrentAccount() {
         const fz = require('fs');
         let data = fz.readFileSync('user.json');
         let zero = JSON.parse(data);
-        var unauthorizedUser = zero.filter(function (ele) {
-            return ele.flag == false;
+        var currentaccount = zero.filter(function (ele) {
+            return ele.accountType == "Current";
         })
-        console.table(unauthorizedUser);
+        console.table(currentaccount);
 
     }
-}
 
+    AccountConvert() {
+        const fz = require('fs');
+        let data = fz.readFileSync('user.json');
+        let accountTypeCheck = JSON.parse(data);
+        const path = require('path');
+        for (let i = 0; i < accountTypeCheck.length; i++) {
+            if (accountTypeCheck[i].amount > 100000) {
+                accountTypeCheck[i].accountType = "Current"
+                fz.writeFileSync(path.resolve(__dirname, 'user.json'), JSON.stringify(accountTypeCheck, null, 2));
+
+            } else {
+                accountTypeCheck[i].accountType = "Saving"
+                fz.writeFileSync(path.resolve(__dirname, 'user.json'), JSON.stringify(accountTypeCheck, null, 2));
+
+            }
+
+        }
+        console.log("The account type changed successfully.")
+    }
+
+    ApproveLoan() {
+        const fz = require('fs');
+        let data = fz.readFileSync('user.json');
+        let ApproveLoan = JSON.parse(data);
+        const path = require('path');
+        for (let i = 0; i < ApproveLoan.length; i++) {
+            if (ApproveLoan[i].Loanamount > 1 && ApproveLoan[i].LoanApprove == false) {
+                ApproveLoan[i].LoanApprove = true
+                ApproveLoan[i].amount = ApproveLoan[i].amount + ApproveLoan[i].Loanamount
+                fz.writeFileSync(path.resolve(__dirname, 'user.json'), JSON.stringify(ApproveLoan, null, 2));
+
+            } else if (ApproveLoan[i].Loanamount < 1 && ApproveLoan[i].LoanApprove == true) {
+                ApproveLoan[i].LoanApprove = false;
+                fz.writeFileSync(path.resolve(__dirname, 'user.json'), JSON.stringify(ApproveLoan, null, 2));
+
+
+            }
+
+        }
+        console.log("The loan was approved successfully.")
+    }
+
+    LoanHolder() {
+        const fz = require('fs');
+        let data = fz.readFileSync('user.json');
+        let zero = JSON.parse(data);
+        var loanUser = zero.filter(function (ele) {
+            return ele.Loanamount > 0;
+        })
+        console.table(loanUser);
+
+
+    }
+    BankAmount() {
+        const fz = require('fs');
+        let data = fz.readFileSync('user.json');
+        let BankAmount = JSON.parse(data);
+        const path = require('path');
+        let BankCash = 0;
+        let LoanCash = 0;
+        for (let i = 0; i < BankAmount.length; i++) {
+            BankCash += BankAmount[i].amount
+            LoanCash += BankAmount[i].Loanamount
+        }
+        console.log(`The total amount in your bank is  Rs.${BankCash}`)
+        console.log(`The total amount lent to the customer is Rs.${LoanCash}`)
+    }
+}
 // Bank class  for the deposit , withdraw & show balance 
 
 class Bank {
 
     public deposit(depositId, ff) {
+        let check: boolean
         const path = require('path');
         var userInputName: string = prompt(detail.userInput)
-        var userInputPass: number = prompt(detail.userPass)
-        for (let i = 0; i < depositId.length; i++) {
-            if (depositId[i].username == userInputName && depositId[i].password == userInputPass) {
-                let amount: number = Number(prompt(detail.deposit))
-                let balance = Number(depositId[i].amount)
-                balance = balance + amount;
-                depositId[i].amount = balance;
-                ff.writeFileSync(path.resolve(__dirname, 'user.json'), JSON.stringify(depositId, null, 2));
-                console.log(`You have deposited Rs ${amount} in your account .`)
+        var userInputPass: string = prompt(detail.userPass)
+        do {
+            check = true;
+            for (let i = 0; i < depositId.length; i++) {
+                if (depositId[i].username == userInputName && depositId[i].password == userInputPass) {
+                    let amount = Number(parseInt(prompt(detail.deposit)))
+                    let balance = Number(depositId[i].amount);
+                    if (Number.isNaN(amount) || amount < 1 || String(amount).length >= 7) {
+                        console.log("Please enter valid amount")
+                        check = false;
+                    } else {
+                        balance = balance + amount;
+                        depositId[i].amount = balance;
+                        ff.writeFileSync(path.resolve(__dirname, 'user.json'), JSON.stringify(depositId, null, 2));
+                        console.log(`You have deposited Rs ${amount} in your account .`)
+                        check = true
+
+                    }
+
+                }
             }
-        }
+        } while (check == false)
     }
     withdraw = (withdawId, fc) => {
+        let check: boolean
         const path = require('path');
         var userInputName: number = prompt(detail.userInput)
         var userInputPass: number = prompt(detail.userPass)
-        for (let i = 0; i < withdawId.length; i++) {
-            if (withdawId[i].username == userInputName && withdawId[i].password == userInputPass) {
-                var withDraw: number = parseInt(prompt(detail.withdraw))
-                if (withDraw < 1) {
-                    console.log("Please enter valid amount")
-                }
-                else if (withDraw > withdawId[i].amount) {
-                    console.log(`Insufficient fund`);
-                } else {
-                    console.log("The amount was withdrawn successfully.")
-                    let balance: number = withdawId[i].amount - withDraw;
-                    withdawId[i].amount = balance;
-                    fc.writeFileSync(path.resolve(__dirname, 'user.json'), JSON.stringify(withdawId, null, 2));
+        do {
+            check = true;
+            for (let i = 0; i < withdawId.length; i++) {
+                if (withdawId[i].username == userInputName && withdawId[i].password == userInputPass) {
+                    var withDraw: number = Number(parseInt(prompt(detail.withdraw)))
+                    if (Number.isNaN(withDraw) || withDraw < 1) {
+                        console.log("Please enter valid amount")
+                        check = false
+                    }
+                    else if (withDraw > withdawId[i].amount) {
+                        console.log(`Insufficient fund`);
+                    } else {
+                        console.log("The amount was withdrawn successfully.")
+                        let balance: number = withdawId[i].amount - withDraw;
+                        withdawId[i].amount = balance;
+                        fc.writeFileSync(path.resolve(__dirname, 'user.json'), JSON.stringify(withdawId, null, 2));
 
-                    console.log(`The remaining balance in your account is ${balance}`)
+                        console.log(`The remaining balance in your account is ${balance}`)
+                    }
+                    break
                 }
-                break
+
             }
-
-        }
+        } while (check == false)
     }
     view_balance(viewBalanceId) {
         var userInputName: number = prompt(detail.userInput)
@@ -275,8 +360,122 @@ class Bank {
             }
         }
     }
-}
+    LoanSection() {
+        console.log(" Welcome to the loan Section ")
+        let fs = require('fs');
+        let path = require('path');
+        let loanData = fs.readFileSync('user.json');
+        let loanInformation = JSON.parse(loanData)
+        let loanResponse = parseInt(prompt(`Please choose  one option 
+    1. Apply for Loan (Upto 5 Lakh)
+    2. Loan Status 
+    3. Paid Loan
+    4. Loan Amount
+    5. Exit
+    `))
+        console.clear()
+        let check
+        switch (loanResponse) {
+            case 1:
+                var userInputName: number = prompt(detail.userInput)
+                var userInputPass: number = prompt(detail.userPass)
+                do {
+                    check = true
+                    for (let i = 0; i < loanInformation.length; i++) {
+                        if (loanInformation[i].username == userInputName && loanInformation[i].password == userInputPass) {
+                            var LoanAmount: number = Number(parseInt(prompt(detail.loanAmount)))
+                            if (Number.isNaN(LoanAmount) || LoanAmount < 1 || LoanAmount > 500000) {
+                                console.log("Please enter valid amount")
+                                check = false
+                            } else if (loanInformation[i].LoanApprove == true) {
+                                console.log("You have already taken the loan.")
+                                break
 
+                            }
+                            else {
+                                console.log("You successfully applied for a loan.")
+                                loanInformation[i].Loanamount = LoanAmount
+
+                                fs.writeFileSync(path.resolve(__dirname, 'user.json'), JSON.stringify(loanInformation, null, 2));
+
+                                console.log(`Your Loan  balance is ${loanInformation[i].Loanamount}`)
+                            }
+
+
+                        }
+                    }
+                } while (check == false)
+                break
+
+
+            case 2:
+                var userInputName: number = prompt(detail.userInput)
+                var userInputPass: number = prompt(detail.userPass)
+                for (let i = 0; i < loanInformation.length; i++) {
+                    if (loanInformation[i].username == userInputName && loanInformation[i].password == userInputPass) {
+                        if (loanInformation[i].LoanApprove == false) {
+                            console.log("Your loan is not approved. ")
+                        }
+                        else {
+                            console.log("Your loan is approved ")
+                        }
+
+                    }
+                }
+                break
+
+            case 3:
+                var userInputName: number = prompt(detail.userInput)
+                var userInputPass: number = prompt(detail.userPass)
+                do {
+                    check = true
+                    for (let i = 0; i < loanInformation.length; i++) {
+                        if (loanInformation[i].username == userInputName && loanInformation[i].password == userInputPass) {
+                            var paidAmount: number = Number(parseInt(prompt(detail.loanAmount)))
+                            if (Number.isNaN(paidAmount) || paidAmount < 1) {
+                                console.log("Please enter valid amount")
+                                check = false
+                            }
+                            else if (loanInformation[i].Loanamount < paidAmount) {
+                                console.log("You are entering an amount greater than the loan amount.")
+
+                            }
+
+                            else {
+                                console.log("You successfully paid the loan.")
+                                let balance: number = loanInformation[i].Loanamount - paidAmount;
+                                loanInformation[i].Loanamount = balance;
+                                if (balance === 0) {
+                                    loanInformation[i].LoanApprove = false;
+                                }
+                                fs.writeFileSync(path.resolve(__dirname, 'user.json'), JSON.stringify(loanInformation, null, 2))
+
+                            }
+
+
+                        }
+                    }
+                } while (check == false)
+                break
+
+            case 4:
+                var userInputName: number = prompt(detail.userInput)
+                var userInputPass: number = prompt(detail.userPass);
+                for (let i = 0; i < loanInformation.length; i++) {
+                    if (loanInformation[i].username == userInputName && loanInformation[i].password == userInputPass) {
+                        let viewBalance = loanInformation[i].Loanamount
+                        console.log(`You have taken a Rs.${viewBalance} loan from the bank`)
+                    }
+                }
+
+                break
+
+            default:
+                break
+        }
+
+    }
+}
 console.log("Welcome to the bank management system. ")
 let userDetails;
 let initialAmount;
@@ -289,8 +488,8 @@ let admin = new Admin()
 do {
 
     let response = parseInt(prompt(`Please choose  one option 
-    1. User Class 
-    2. Admin Class 
+    1. User Login
+    2. Admin Login
     `))
     console.clear()
     if (response === 1) {
@@ -300,10 +499,11 @@ do {
     
      1. Create a New Account
      2. Show Details 
-     3. Deposit 
+     3. Deposit (Upto 7 Digit Amount)
      4. Withdraw
      5. View Balance
-     6. Exit
+     6. Loan Section 
+     7. Exit
 
      `))
         console.clear()
@@ -313,9 +513,9 @@ do {
                 const fs = require('fs');
                 const path = require('path');
                 let exitingData = fs.readFileSync('user.json');
-                let userDatas = JSON.parse(exitingData)
-                userDatas.push(userDetails)
-                fs.writeFileSync(path.resolve(__dirname, 'user.json'), JSON.stringify(userDatas, null, 2));
+                let userInformation = JSON.parse(exitingData)
+                userInformation.push(userDetails)
+                fs.writeFileSync(path.resolve(__dirname, 'user.json'), JSON.stringify(userInformation, null, 2));
                 console.log("Account created successfully")
                 break
 
@@ -345,6 +545,10 @@ do {
                 let viewBalanceId = JSON.parse(balanceFile);
                 bank.view_balance(viewBalanceId)
                 break
+            case 6:
+                bank.LoanSection()
+                break
+
             default:
                 break
         }
@@ -361,15 +565,16 @@ do {
             do {
                 adminResponse = parseInt(prompt(`Please choose option :
 
-     1. UserDetails 
-     2. Rs.0 Balance Holder User
-     3. < 1L Amount holder User
-     4. > 1L Amount holder User
-     5. User Authentication
-     6. Authorized User  
-     7. Unauthorized User (
-     8. Delete Account
-     9.exit
+     1. User Details 
+     2. Account Holder details Based On amount
+     3. Saving Accounts  (Amount less than 1 Lakh)
+     4. Current Accounts (Amount more than 1 Lakh)
+     5. Account Convert  (Saving >< Current )
+     6. Delete Account   (Zero Balance Holder)
+     7. Approve Loan 
+     8. Loan Holder
+     9. Bank Statement 
+    10. Exit
 
      `))
                 console.clear()
@@ -378,36 +583,35 @@ do {
                         admin.userDetails()
                         break
                     case 2:
-                        admin.zeroBalanceHolder()
+                        admin.accountHolderBasedOnAmount()
                         break
-
                     case 3:
-                        admin.one_Lakh_Holder()
+                        admin.SavingAccount()
                         break
-
                     case 4:
-                        admin.more_Than_1lakh()
+                        admin.CurrentAccount()
                         break
                     case 5:
-                        admin.isAuthenticate()
-                        break
+                        admin.AccountConvert()
                     case 6:
-                        admin.authorizeUsers()
-                        break
-                    case 7:
-                        admin.unauthorizeUsers()
-                        break
-                    case 8:
                         admin.deleteAccount()
+                    case 7:
+                        admin.ApproveLoan()
+                    case 8:
+                        admin.LoanHolder()
+                        break
+                    case 9:
+                        admin.BankAmount()
+                        break
                     default:
                         break
                 }
-            } while (adminResponse != 9)
+            } while (adminResponse != 10)
         } else {
             console.log("Please enter valid input ")
         }
     }
 
-} while (input != 6)
+} while (input != 7)
 
 export { }

@@ -13,6 +13,7 @@ var detail;
     detail["password"] = "Please create a password :  ";
     detail["deposit"] = "Please enter the amount of the deposit:  ";
     detail["withdraw"] = "Please enter the amount to withdraw.:  ";
+    detail["loanAmount"] = "Please enter the amount.:  ";
     detail["userInput"] = "Please enter your user name.:  ";
     detail["userPass"] = "Please enter your password.:   ";
 })(detail = exports.detail || (exports.detail = {}));
