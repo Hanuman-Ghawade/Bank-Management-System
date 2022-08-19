@@ -1,33 +1,18 @@
 [
   {
-    "name": "Tushar Kawade",
-    "age": 25,
-    "mobileNumber": 9503429216,
-    "email": "tushar@gmail.com",
-    "birth": "15-07-1997",
-    "accountNo": 3887,
-    "accountType": "Saving",
-    "username": "tushar",
-    "password": "tushar",
-    "amount": 6000,
-    "LoanApprove": false,
-    "Loanamount": 0,
-    "flag": true
-  },
-  {
     "name": "Akshay Kadam",
     "age": 21,
     "mobileNumber": 9623985254,
     "email": "akshay@gmail.com",
     "birth": "18-02-2000",
     "accountNo": 5882,
-    "accountType": "Current",
+    "accountType": "Saving",
     "username": "akshay",
     "password": "akshay",
     "amount": 6000,
     "LoanApprove": false,
-    "Loanamount": 0,
-    "flag": true
+    "Loanamount": 0
+  
   },
   {
     "name": "Hanuman Ghawade",
@@ -39,10 +24,10 @@
     "accountType": "Saving",
     "username": "hanuman",
     "password": "hanuman",
-    "amount": 7000,
+    "amount": 4500,
     "LoanApprove": false,
-    "Loanamount": 0,
-    "flag": true
+    "Loanamount": 0
+   
   },
   {
     "name": "Dhiraj Mehta",
@@ -56,8 +41,8 @@
     "password": "dhiraj",
     "amount": 6000,
     "LoanApprove": false,
-    "Loanamount": 0,
-    "flag": true
+    "Loanamount": 0
+    
   },
   {
     "name": "Neeraj Ahire",
@@ -69,10 +54,9 @@
     "accountType": "Saving",
     "username": "neeraj",
     "password": "neeraj",
-    "amount": 2000,
+    "amount": 1500,
     "LoanApprove": false,
-    "Loanamount": 0,
-    "flag": true
+    "Loanamount": 0
   },
   {
     "name": "Rakshada",
@@ -86,8 +70,8 @@
     "password": "rakshada",
     "amount": 1000,
     "LoanApprove": false,
-    "Loanamount": 0,
-    "flag": true
+    "Loanamount": 0
+  
   },
   {
     "name": "Aditya Pardeshi",
@@ -96,12 +80,39 @@
     "email": "aditya@gmail.com",
     "birth": "10-11-1996",
     "accountNo": 5536,
-    "accountType": "Saving",
+    "accountType": "Current",
     "username": "aditya",
     "password": "aditya",
-    "amount": 500000,
+    "amount": 510000,
+    "LoanApprove": true,
+    "Loanamount": 10000
+  },
+  {
+    "name": "Pravin Gardale",
+    "age": 26,
+    "mobileNumber": 9764930080,
+    "email": "pravin@gmail.com",
+    "birth": "16-07-1997",
+    "accountNo": 3005,
+    "accountType": "Saving",
+    "username": "pravin",
+    "password": "pravin",
+    "amount": 600,
     "LoanApprove": false,
-    "Loanamount": 10000,
-    "flag": true
+    "Loanamount": 0
+  },
+  {
+    "name": "Pallavi Deore",
+    "age": 22,
+    "mobileNumber": 9563784598,
+    "email": "pallavi@gmail.com",
+    "birth": "16-08-2000",
+    "accountNo": 3754,
+    "accountType": "Saving",
+    "username": "pallavi",
+    "password": "pallavi",
+    "amount": 500,
+    "LoanApprove": false,
+    "Loanamount": 0
   }
 ]

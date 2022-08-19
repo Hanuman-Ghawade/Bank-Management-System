@@ -7,13 +7,15 @@ export enum detail {
     email = "Please enter your email (exmple@gmail.com):  ",
     dateOfBirth = "Please enter your date of birth (DD-MM-YEAR):  ",
     accountNo = "Auto Generated : ",
-    username = "Please create your user name.:  " ,
+    username = "Please create your user Id.:  " ,
     password = "Please create a password :  ",
     deposit = "Please enter the amount of the deposit:  ",
     withdraw = "Please enter the amount to withdraw.:  ",
     loanAmount = "Please enter the amount.:  ",
-    userInput = "Please enter your user name.:  ",
-    userPass = "Please enter your password.:   "
+    userInput = "Please enter your user Id.:  ",
+    userPass = "Please enter your password.:  ",
+    moneyTransfer = "Please enter amount to transfer:  " ,
+    receiverAccountNo = "Please enter the account number of the receiver:  "
 }
 
 
