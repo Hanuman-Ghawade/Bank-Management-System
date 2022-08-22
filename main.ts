@@ -1,16 +1,15 @@
-import { detail } from "./Enum.js";
+import { detail } from "./Constant/Enum.js";
+
 
 // Banking management system 
-const ps = require("prompt-sync")
+const ps = require(detail.prompt)
 const prompt = ps()
 
-
-
-let fs = require('fs');
-let path = require('path');
-let customerData = fs.readFileSync('user.json');
+let fs = require(detail.fs);
+let path = require(detail.path);
+let customerData = fs.readFileSync(detail.userDB);
 let customerDetails = JSON.parse(customerData);
-let adminData = fs.readFileSync('admin.json');
+let adminData = fs.readFileSync(detail.adminDB);
 let adminDetails = JSON.parse(adminData)
 
 interface userDetailsJSON {
@@ -24,8 +23,11 @@ interface userDetailsJSON {
     username: string,
     password: string,
     amount: number,
-    LoanApprove: boolean,
-    Loanamount: number
+    loanApplicable: boolean,
+    loanTaken: number,
+    loanAmount: number,
+    loanLimit : number,
+    loanApplied : boolean
 }
 
 // We Have created on user class 
@@ -40,9 +42,11 @@ class User implements userDetailsJSON {
     username: string;
     password: string;
     amount: number;
-    LoanApprove: boolean;
-    Loanamount: number
-
+    loanApplicable: boolean;
+    loanTaken :number ;
+    loanAmount: number ;
+    loanLimit : number
+    loanApplied: boolean;
     createAccount = () => {
         let check: boolean;
         // Input details for name
@@ -92,21 +96,27 @@ class User implements userDetailsJSON {
         // Input details for date of Birth 
 
         do {
-            var dateReg: RegExp = /^\d{2}([./-])\d{2}\1\d{4}$/
+            var dateReg  = /^\d{2}([./-])\d{2}\1\d{4}$/
             check = true;
-            var birth: string = prompt(detail.dateOfBirth);
-            var ageMS: number = Date.parse(Date()) - Date.parse(birth);
-            let age: Date = new Date();
-            age.setTime(ageMS);
-            let ageYear: number = age.getFullYear() - 1970;
-            if (ageYear < 18 || ageYear > 80) {
-                console.log("The age range should be between 18 and 80.");
-                check = false;
-            }
-            else if (birth.match(dateReg) == null) {
+            var birth :string = prompt(detail.dateOfBirth);
+            
+            let ageMS :number = Date.parse(Date()) - Date.parse(birth);
+
+            let age: Date= new Date();
+         
+             age.setTime(ageMS);
+
+            var ageYear :number = age.getFullYear() - 1970;
+
+            if (birth.match(dateReg) == null) {
                 console.log("Please enter valid date ");
                 check = false;
             }
+            else if (ageYear < 18 || ageYear > 80) {
+                console.log("The age range should be between 18 and 80.");
+                check = false;
+            }
+            
         } while (check == false);
 
         // input details for username
@@ -122,17 +132,17 @@ class User implements userDetailsJSON {
         } while (check == false);
         // Intial  amount
 
-        var amount: number = 0;
+        let amount: number = 0;
         // input details for password 
-        var password: string = prompt(detail.password);
+        let password: string = prompt(detail.password);
 
         // Auto generated Account number .
 
-        var accountNo: number = Math.floor((Math.random() * 10000) + 1); // 4 Digit account number 
+        let accountNo: number = Math.floor((Math.random() * 10000) + 1); // 4 Digit account number 
 
         // default account type will be Saving
 
-        let accountType: string = "Saving";
+        let accountType: string = detail.savingAccount;
 
         // Loan Applicable
 
@@ -140,7 +150,7 @@ class User implements userDetailsJSON {
 
         // Loan Amount 
 
-        let Loanamount: number = 0;
+        let LoanAmount: number = 0;
 
         //  Loan Limit
 
@@ -150,7 +160,7 @@ class User implements userDetailsJSON {
 
         // Loan Taken 
 
-        let loanTaken = 0 ;
+        let loanTaken = 0;
 
 
         // loan application 
@@ -159,7 +169,7 @@ class User implements userDetailsJSON {
 
         // return the all input 
 
-        return { name, age, mobileNumber, email, birth, accountNo, accountType, username, password, amount, loanApplicable, loanTaken,  Loanamount, loanLimit, loanApplied };
+        return { name, age, mobileNumber, email, birth, accountNo, accountType, username, password, amount, loanApplicable, loanTaken, LoanAmount, loanLimit, loanApplied };
     }
 
     // Details of the customer 
@@ -198,8 +208,11 @@ class Admin implements userDetailsJSON {
     username: string;
     password: string;
     amount: number;
-    LoanApprove: boolean;
-    Loanamount: number
+    loanApplicable: boolean;
+    loanTaken: number;
+    loanAmount: number;
+    loanLimit: number
+    loanApplied: boolean;
 
     userDetails(): void {
         console.table(customerDetails)
@@ -208,12 +221,7 @@ class Admin implements userDetailsJSON {
     accountHolderBasedOnAmount(): void {
         let response: number
         do {
-            response = parseInt(prompt(`Please choose  one option 
-    1. Rs.0 amount Holder
-    2. Rs. < 1 Lakh amount Holder
-    3. Rs. > 1 Lakh amount Holder
-    4. Exit
-    `))
+            response = parseInt(prompt(detail.amountHolder))
             console.clear()
             switch (response) {
                 case 1:
@@ -255,20 +263,20 @@ class Admin implements userDetailsJSON {
         };
         removeAmount(customerDetails, 0)
 
-        fs.writeFileSync(path.resolve(__dirname, 'user.json'), JSON.stringify(customerDetails, null, 2));
+        fs.writeFileSync(path.resolve(__dirname, detail.userDB), JSON.stringify(customerDetails, null, 2));
         console.log("Account deleted Successfully")
     }
     SavingAccount(): void {
 
         var authorizedUser = customerDetails.filter(function (ele) {
-            return ele.accountType == "Saving";
+            return ele.accountType == detail.savingAccount;
         })
         console.table(authorizedUser);
     }
     CurrentAccount(): void {
 
         var currentaccount: string = customerDetails.filter(function (ele) {
-            return ele.accountType == "Current";
+            return ele.accountType == detail.currentAccount;
         })
         console.table(currentaccount);
 
@@ -279,10 +287,10 @@ class Admin implements userDetailsJSON {
                 customerDetails[i].loanApplied = false
                 customerDetails[i].amount += customerDetails[i].loanTaken
                 customerDetails[i].loanTaken = 0
-                fs.writeFileSync(path.resolve(__dirname, 'user.json'), JSON.stringify(customerDetails, null, 2));
+                fs.writeFileSync(path.resolve(__dirname, detail.userDB), JSON.stringify(customerDetails, null, 2));
                 if (customerDetails[i].amount > 100000) {
-                    customerDetails[i].accountType = "Current";
-                    fs.writeFileSync(path.resolve(__dirname, 'user.json'), JSON.stringify(customerDetails, null, 2));
+                    customerDetails[i].accountType = detail.currentAccount;
+                    fs.writeFileSync(path.resolve(__dirname, detail.userDB), JSON.stringify(customerDetails, null, 2));
                 }
 
             }
@@ -305,7 +313,7 @@ class Admin implements userDetailsJSON {
         let count = 0
         for (let i = 0; i < customerDetails.length; i++) {
             BankCash += customerDetails[i].amount
-            LoanCash += customerDetails[i].Loanamount
+            LoanCash += customerDetails[i].LoanAmount
             count++
         }
         console.log(`The total amount in your bank is  Rs.${BankCash}.`)
@@ -327,8 +335,11 @@ class Bank implements userDetailsJSON {
     username: string;
     password: string;
     amount: number;
-    LoanApprove: boolean;
-    Loanamount: number
+    loanApplicable: boolean;
+    loanTaken: number;
+    loanAmount: number;
+    loanLimit: number
+    loanApplied: boolean;
 
     public deposit(customerDetails): void {
         let check: boolean
@@ -347,11 +358,11 @@ class Bank implements userDetailsJSON {
                     else {
                         balance = balance + amount
                         customerDetails[i].amount = balance;
-                        fs.writeFileSync(path.resolve(__dirname, 'user.json'), JSON.stringify(customerDetails, null, 2));
+                        fs.writeFileSync(path.resolve(__dirname, detail.userDB), JSON.stringify(customerDetails, null, 2));
                         console.log(`You have deposited Rs ${amount} in your account .`)
                         if (customerDetails[i].amount > 100000) {
-                            customerDetails[i].accountType = "Current"
-                            fs.writeFileSync(path.resolve(__dirname, 'user.json'), JSON.stringify(customerDetails, null, 2));
+                            customerDetails[i].accountType = detail.currentAccount  ;
+                            fs.writeFileSync(path.resolve(__dirname, detail.userDB), JSON.stringify(customerDetails, null, 2));
                         }
                         check = true
                     }
@@ -361,7 +372,6 @@ class Bank implements userDetailsJSON {
     }
     withdraw = (customerDetails): void => {
         let check: boolean
-        const path = require('path');
         var userInputName: number = prompt(detail.userInput)
         var userInputPass: number = prompt(detail.userPass)
         do {
@@ -379,11 +389,11 @@ class Bank implements userDetailsJSON {
                         console.log("The amount was withdrawn successfully.")
                         let balance: number = customerDetails[i].amount - withDraw;
                         customerDetails[i].amount = balance;
-                        fs.writeFileSync(path.resolve(__dirname, 'user.json'), JSON.stringify(customerDetails, null, 2));
+                        fs.writeFileSync(path.resolve(__dirname, detail.userDB), JSON.stringify(customerDetails, null, 2));
                         console.log(`The remaining balance in your account is ${balance}`)
                         if (customerDetails[i].amount <= 100000) {
-                            customerDetails[i].accountType = "Saving";
-                            fs.writeFileSync(path.resolve(__dirname, 'user.json'), JSON.stringify(customerDetails, null, 2));
+                            customerDetails[i].accountType = detail.currentAccount;
+                            fs.writeFileSync(path.resolve(__dirname, detail.userDB), JSON.stringify(customerDetails, null, 2));
                         }
                     }
                     break
@@ -393,6 +403,7 @@ class Bank implements userDetailsJSON {
     }
 
     view_balance(customerDetails): void {
+        let check :boolean ;
         var userInputName: string = prompt(detail.userInput)
         var userInputPass: string = prompt(detail.userPass);
         for (let i = 0; i < customerDetails.length; i++) {
@@ -407,13 +418,7 @@ class Bank implements userDetailsJSON {
         var userInputName: string = prompt(detail.userInput)
         var userInputPass: string = prompt(detail.userPass)
         do {
-            loanResponse = parseInt(prompt(`Please choose  one option 
-    1. Apply for Loan (Upto 5 Lakh)
-    2. Loan Status 
-    3. Paid Loan
-    4. Loan Amount
-    5. Exit
-    `))
+            loanResponse = parseInt(prompt(detail.loanSection))
             console.clear()
             let check: boolean;
             switch (loanResponse) {
@@ -423,36 +428,36 @@ class Bank implements userDetailsJSON {
                         check = true
                         for (let i = 0; i < customerDetails.length; i++) {
                             if (customerDetails[i].username == userInputName && customerDetails[i].password == userInputPass) {
-                                var LoanAmount: number = Number(parseInt(prompt(detail.loanAmount)))
+                                var loanBalance: number = Number(parseInt(prompt(detail.loanAmount)))
                                 if (customerDetails[i].loanApplied == true) {
                                     console.log(" Your previous loan was not approved.")
 
                                 }
-                                else if (Number.isNaN(LoanAmount) || LoanAmount < 1) {
+                                else if (Number.isNaN(loanBalance) || loanBalance < 1) {
                                     console.log("Please enter valid amount")
                                     check = false
                                 } else if (customerDetails[i].loanApplicable == false) {
                                     console.log(" Your loan limit has exceeded.")
                                 }
-                                else if (customerDetails[i].loanLimit < LoanAmount) {
+                                else if (customerDetails[i].loanLimit < loanBalance) {
                                     console.log("You have entered an amount that is greater than the loan limit.")
                                     check = false
                                 }
 
                                 else {
-                                    customerDetails[i].Loanamount += LoanAmount;
-                                    customerDetails[i].loanTaken += LoanAmount;
-                                    customerDetails[i].loanLimit = customerDetails[i].loanLimit - LoanAmount
+                                    customerDetails[i].Loanamount += loanBalance;
+                                    customerDetails[i].loanTaken += loanBalance;
+                                    customerDetails[i].loanLimit = customerDetails[i].loanLimit - loanBalance
                                     customerDetails[i].loanApplied = true;
-                                    fs.writeFileSync(path.resolve(__dirname, 'user.json'), JSON.stringify(customerDetails, null, 2));
+                                    fs.writeFileSync(path.resolve(__dirname, detail.userDB), JSON.stringify(customerDetails, null, 2));
                                     console.log("You successfully applied for a loan.")
                                     if (customerDetails[i].loanLimit < 1) {
                                         customerDetails[i].loanApplicable = false
-                                        fs.writeFileSync(path.resolve(__dirname, 'user.json'), JSON.stringify(customerDetails, null, 2));
+                                        fs.writeFileSync(path.resolve(__dirname, detail.userDB), JSON.stringify(customerDetails, null, 2));
                                     }
                                     else {
                                         customerDetails[i].loanApplicable = true;
-                                        fs.writeFileSync(path.resolve(__dirname, 'user.json'), JSON.stringify(customerDetails, null, 2));
+                                        fs.writeFileSync(path.resolve(__dirname, detail.userDB), JSON.stringify(customerDetails, null, 2));
                                     }
                                 }
                             }
@@ -483,24 +488,20 @@ class Bank implements userDetailsJSON {
                                     console.log("Please enter valid amount")
                                     check = false
                                 }
-                                else if (customerDetails[i].Loanamount < paidAmount) {
+                                else if (customerDetails[i].loanAmount < paidAmount) {
                                     console.log("You are entering an amount greater than the loan amount.")
 
                                 }
-
                                 else {
                                     console.log("You successfully paid the loan.")
-                                    customerDetails[i].Loanamount -= paidAmount;
+                                    customerDetails[i].loanAmount -= paidAmount;
                                     customerDetails[i].loanLimit += paidAmount
-                                    fs.writeFileSync(path.resolve(__dirname, 'user.json'), JSON.stringify(customerDetails, null, 2)) ;
+                                    fs.writeFileSync(path.resolve(__dirname, detail.userDB), JSON.stringify(customerDetails, null, 2));
                                     if (customerDetails[i].loanLimit > 0) {
                                         customerDetails[i].loanApplicable = true
-                                        fs.writeFileSync(path.resolve(__dirname, 'user.json'), JSON.stringify(customerDetails, null, 2));                                        
+                                        fs.writeFileSync(path.resolve(__dirname, detail.userDB), JSON.stringify(customerDetails, null, 2));
                                     }
-
                                 }
-
-
                             }
                         }
                     } while (check == false)
@@ -510,7 +511,7 @@ class Bank implements userDetailsJSON {
 
                     for (let i = 0; i < customerDetails.length; i++) {
                         if (customerDetails[i].username == userInputName && customerDetails[i].password == userInputPass) {
-                            let viewBalance = customerDetails[i].Loanamount
+                            let viewBalance = customerDetails[i].loanAmount
                             console.log(`You have taken a Rs.${viewBalance} loan from the bank`)
                         }
                     }
@@ -537,23 +538,19 @@ class Bank implements userDetailsJSON {
                     for (let i = 0; i < customerDetails.length; i++) {
                         if (customerDetails[i].accountNo === receiverAccountNumber) {
                             customerDetails[i].amount += transferAmount
-                            fs.writeFileSync(path.resolve(__dirname, 'user.json'), JSON.stringify(customerDetails, null, 2))
+                            fs.writeFileSync(path.resolve(__dirname, detail.userDB), JSON.stringify(customerDetails, null, 2))
                             console.log("The money was transferred successfully.")
                             if (customerDetails[i].amount > 100000) {
-                                customerDetails[i].accountType = "Current";
-                                fs.writeFileSync(path.resolve(__dirname, 'user.json'), JSON.stringify(customerDetails, null, 2))
-
-
+                                customerDetails[i].accountType = detail.currentAccount;
+                                fs.writeFileSync(path.resolve(__dirname, detail.userDB), JSON.stringify(customerDetails, null, 2))
                             }
                         }
                     }
                     customerDetails[i].amount = customerDetails[i].amount - transferAmount
-                    fs.writeFileSync(path.resolve(__dirname, 'user.json'), JSON.stringify(customerDetails, null, 2))
+                    fs.writeFileSync(path.resolve(__dirname, detail.userDB), JSON.stringify(customerDetails, null, 2))
                     if (customerDetails[i].amount <= 100000) {
-                        customerDetails[i].accountType = "Saving";
-                        fs.writeFileSync(path.resolve(__dirname, 'user.json'), JSON.stringify(customerDetails, null, 2))
-
-
+                        customerDetails[i].accountType = detail.savingAccount;
+                        fs.writeFileSync(path.resolve(__dirname, detail.userDB), JSON.stringify(customerDetails, null, 2))
                     }
                 }
             }
@@ -571,27 +568,14 @@ let bank: Bank = new Bank();
 let admin: Admin = new Admin()
 
 do {
-    response = parseInt(prompt(`Please choose  one option 
-    1. User Login
-    2. Admin Login
-    `))
+    response  = parseInt(prompt(detail.bankLogin))
     console.clear();
     if (response === 1) {
         console.clear();
         let userResponse: number;
         do {
             console.log("******* User Login *****")
-            userResponse = parseInt(prompt(`Please choose one  option :
-    
-     1. Create a New Account
-     2. Show Details 
-     3. Deposit (Upto 7 Digit Amount)
-     4. Withdraw
-     5. View Balance
-     6. Loan Section 
-     7. Money Transfer 
-     8. Exit
-     `))
+            userResponse = parseInt(prompt(detail.userLogin))
             console.clear()
             switch (userResponse) {
                 case 1:
@@ -599,7 +583,7 @@ do {
                     console.log("**** New Account registrations ****")
                     userDetails = user.createAccount()
                     customerDetails.push(userDetails)
-                    fs.writeFileSync(path.resolve(__dirname, 'user.json'), JSON.stringify(customerDetails, null, 2));
+                    fs.writeFileSync(path.resolve(__dirname, detail.userDB), JSON.stringify(customerDetails, null, 2));
                     console.log("Account created successfully")
                     break
                 case 2:
@@ -646,17 +630,7 @@ do {
             console.log("Admin login successfully done")
             console.clear()
             do {
-                adminResponse = parseInt(prompt(`Please choose option :
-     1. User Details 
-     2. Account Holder details Based On amount
-     3. Saving Accounts  (Amount less than 1 Lakh)
-     4. Current Accounts (Amount more than 1 Lakh)
-     5. Delete Account   (Zero Balance Holder)
-     6. Approve Loan 
-     7. Loan Holder
-     8. Bank Statement 
-     9. Exit
-     `))
+                adminResponse = parseInt(prompt(detail.adminLogin))
                 console.clear()
                 switch (adminResponse) {
                     case 1:

@@ -1,14 +1,14 @@
 "use strict";
 exports.__esModule = true;
-var Enum_js_1 = require("./Enum.js");
+var Enum_js_1 = require("./Constant/Enum.js");
 // Banking management system 
-var ps = require("prompt-sync");
+var ps = require(Enum_js_1.detail.prompt);
 var prompt = ps();
-var fs = require('fs');
-var path = require('path');
-var customerData = fs.readFileSync('user.json');
+var fs = require(Enum_js_1.detail.fs);
+var path = require(Enum_js_1.detail.path);
+var customerData = fs.readFileSync(Enum_js_1.detail.userDB);
 var customerDetails = JSON.parse(customerData);
-var adminData = fs.readFileSync('admin.json');
+var adminData = fs.readFileSync(Enum_js_1.detail.adminDB);
 var adminDetails = JSON.parse(adminData);
 // We Have created on user class 
 var User = /** @class */ (function () {
@@ -62,12 +62,12 @@ var User = /** @class */ (function () {
                 var age_1 = new Date();
                 age_1.setTime(ageMS);
                 var ageYear = age_1.getFullYear() - 1970;
-                if (ageYear < 18 || ageYear > 80) {
-                    console.log("The age range should be between 18 and 80.");
+                if (birth.match(dateReg) == null) {
+                    console.log("Please enter valid date ");
                     check = false;
                 }
-                else if (birth.match(dateReg) == null) {
-                    console.log("Please enter valid date ");
+                else if (ageYear < 18 || ageYear > 80) {
+                    console.log("The age range should be between 18 and 80.");
                     check = false;
                 }
             } while (check == false);
@@ -88,11 +88,11 @@ var User = /** @class */ (function () {
             // Auto generated Account number .
             var accountNo = Math.floor((Math.random() * 10000) + 1); // 4 Digit account number 
             // default account type will be Saving
-            var accountType = "Saving";
+            var accountType = Enum_js_1.detail.savingAccount;
             // Loan Applicable
             var loanApplicable = true;
             // Loan Amount 
-            var Loanamount = 0;
+            var LoanAmount = 0;
             //  Loan Limit
             var loanLimit = 500000;
             // Loan Taken 
@@ -100,7 +100,7 @@ var User = /** @class */ (function () {
             // loan application 
             var loanApplied = false;
             // return the all input 
-            return { name: name, age: age, mobileNumber: mobileNumber, email: email, birth: birth, accountNo: accountNo, accountType: accountType, username: username, password: password, amount: amount, loanApplicable: loanApplicable, loanTaken: loanTaken, Loanamount: Loanamount, loanLimit: loanLimit, loanApplied: loanApplied };
+            return { name: name, age: age, mobileNumber: mobileNumber, email: email, birth: birth, accountNo: accountNo, accountType: accountType, username: username, password: password, amount: amount, loanApplicable: loanApplicable, loanTaken: loanTaken, LoanAmount: LoanAmount, loanLimit: loanLimit, loanApplied: loanApplied };
         };
         // Details of the customer 
         this.showDetails = function (customerDetails) {
@@ -136,7 +136,7 @@ var Admin = /** @class */ (function () {
     Admin.prototype.accountHolderBasedOnAmount = function () {
         var response;
         do {
-            response = parseInt(prompt("Please choose  one option \n    1. Rs.0 amount Holder\n    2. Rs. < 1 Lakh amount Holder\n    3. Rs. > 1 Lakh amount Holder\n    4. Exit\n    "));
+            response = parseInt(prompt(Enum_js_1.detail.amountHolder));
             console.clear();
             switch (response) {
                 case 1:
@@ -174,18 +174,18 @@ var Admin = /** @class */ (function () {
             return !!customerDetails.splice(requiredIndex, 1);
         };
         removeAmount(customerDetails, 0);
-        fs.writeFileSync(path.resolve(__dirname, 'user.json'), JSON.stringify(customerDetails, null, 2));
+        fs.writeFileSync(path.resolve(__dirname, Enum_js_1.detail.userDB), JSON.stringify(customerDetails, null, 2));
         console.log("Account deleted Successfully");
     };
     Admin.prototype.SavingAccount = function () {
         var authorizedUser = customerDetails.filter(function (ele) {
-            return ele.accountType == "Saving";
+            return ele.accountType == Enum_js_1.detail.savingAccount;
         });
         console.table(authorizedUser);
     };
     Admin.prototype.CurrentAccount = function () {
         var currentaccount = customerDetails.filter(function (ele) {
-            return ele.accountType == "Current";
+            return ele.accountType == Enum_js_1.detail.currentAccount;
         });
         console.table(currentaccount);
     };
@@ -195,10 +195,10 @@ var Admin = /** @class */ (function () {
                 customerDetails[i].loanApplied = false;
                 customerDetails[i].amount += customerDetails[i].loanTaken;
                 customerDetails[i].loanTaken = 0;
-                fs.writeFileSync(path.resolve(__dirname, 'user.json'), JSON.stringify(customerDetails, null, 2));
+                fs.writeFileSync(path.resolve(__dirname, Enum_js_1.detail.userDB), JSON.stringify(customerDetails, null, 2));
                 if (customerDetails[i].amount > 100000) {
-                    customerDetails[i].accountType = "Current";
-                    fs.writeFileSync(path.resolve(__dirname, 'user.json'), JSON.stringify(customerDetails, null, 2));
+                    customerDetails[i].accountType = Enum_js_1.detail.currentAccount;
+                    fs.writeFileSync(path.resolve(__dirname, Enum_js_1.detail.userDB), JSON.stringify(customerDetails, null, 2));
                 }
             }
         }
@@ -216,7 +216,7 @@ var Admin = /** @class */ (function () {
         var count = 0;
         for (var i = 0; i < customerDetails.length; i++) {
             BankCash += customerDetails[i].amount;
-            LoanCash += customerDetails[i].Loanamount;
+            LoanCash += customerDetails[i].LoanAmount;
             count++;
         }
         console.log("The total amount in your bank is  Rs.".concat(BankCash, "."));
@@ -230,7 +230,6 @@ var Bank = /** @class */ (function () {
     function Bank() {
         this.withdraw = function (customerDetails) {
             var check;
-            var path = require('path');
             var userInputName = prompt(Enum_js_1.detail.userInput);
             var userInputPass = prompt(Enum_js_1.detail.userPass);
             do {
@@ -249,11 +248,11 @@ var Bank = /** @class */ (function () {
                             console.log("The amount was withdrawn successfully.");
                             var balance = customerDetails[i].amount - withDraw;
                             customerDetails[i].amount = balance;
-                            fs.writeFileSync(path.resolve(__dirname, 'user.json'), JSON.stringify(customerDetails, null, 2));
+                            fs.writeFileSync(path.resolve(__dirname, Enum_js_1.detail.userDB), JSON.stringify(customerDetails, null, 2));
                             console.log("The remaining balance in your account is ".concat(balance));
                             if (customerDetails[i].amount <= 100000) {
-                                customerDetails[i].accountType = "Saving";
-                                fs.writeFileSync(path.resolve(__dirname, 'user.json'), JSON.stringify(customerDetails, null, 2));
+                                customerDetails[i].accountType = Enum_js_1.detail.currentAccount;
+                                fs.writeFileSync(path.resolve(__dirname, Enum_js_1.detail.userDB), JSON.stringify(customerDetails, null, 2));
                             }
                         }
                         break;
@@ -279,11 +278,11 @@ var Bank = /** @class */ (function () {
                     else {
                         balance = balance + amount;
                         customerDetails[i].amount = balance;
-                        fs.writeFileSync(path.resolve(__dirname, 'user.json'), JSON.stringify(customerDetails, null, 2));
+                        fs.writeFileSync(path.resolve(__dirname, Enum_js_1.detail.userDB), JSON.stringify(customerDetails, null, 2));
                         console.log("You have deposited Rs ".concat(amount, " in your account ."));
                         if (customerDetails[i].amount > 100000) {
-                            customerDetails[i].accountType = "Current";
-                            fs.writeFileSync(path.resolve(__dirname, 'user.json'), JSON.stringify(customerDetails, null, 2));
+                            customerDetails[i].accountType = Enum_js_1.detail.currentAccount;
+                            fs.writeFileSync(path.resolve(__dirname, Enum_js_1.detail.userDB), JSON.stringify(customerDetails, null, 2));
                         }
                         check = true;
                     }
@@ -292,6 +291,7 @@ var Bank = /** @class */ (function () {
         } while (check == false);
     };
     Bank.prototype.view_balance = function (customerDetails) {
+        var check;
         var userInputName = prompt(Enum_js_1.detail.userInput);
         var userInputPass = prompt(Enum_js_1.detail.userPass);
         for (var i = 0; i < customerDetails.length; i++) {
@@ -306,7 +306,7 @@ var Bank = /** @class */ (function () {
         var userInputName = prompt(Enum_js_1.detail.userInput);
         var userInputPass = prompt(Enum_js_1.detail.userPass);
         do {
-            loanResponse = parseInt(prompt("Please choose  one option \n    1. Apply for Loan (Upto 5 Lakh)\n    2. Loan Status \n    3. Paid Loan\n    4. Loan Amount\n    5. Exit\n    "));
+            loanResponse = parseInt(prompt(Enum_js_1.detail.loanSection));
             console.clear();
             var check = void 0;
             switch (loanResponse) {
@@ -316,35 +316,35 @@ var Bank = /** @class */ (function () {
                         check = true;
                         for (var i = 0; i < customerDetails.length; i++) {
                             if (customerDetails[i].username == userInputName && customerDetails[i].password == userInputPass) {
-                                var LoanAmount = Number(parseInt(prompt(Enum_js_1.detail.loanAmount)));
+                                var loanBalance = Number(parseInt(prompt(Enum_js_1.detail.loanAmount)));
                                 if (customerDetails[i].loanApplied == true) {
                                     console.log(" Your previous loan was not approved.");
                                 }
-                                else if (Number.isNaN(LoanAmount) || LoanAmount < 1) {
+                                else if (Number.isNaN(loanBalance) || loanBalance < 1) {
                                     console.log("Please enter valid amount");
                                     check = false;
                                 }
                                 else if (customerDetails[i].loanApplicable == false) {
                                     console.log(" Your loan limit has exceeded.");
                                 }
-                                else if (customerDetails[i].loanLimit < LoanAmount) {
+                                else if (customerDetails[i].loanLimit < loanBalance) {
                                     console.log("You have entered an amount that is greater than the loan limit.");
                                     check = false;
                                 }
                                 else {
-                                    customerDetails[i].Loanamount += LoanAmount;
-                                    customerDetails[i].loanTaken += LoanAmount;
-                                    customerDetails[i].loanLimit = customerDetails[i].loanLimit - LoanAmount;
+                                    customerDetails[i].Loanamount += loanBalance;
+                                    customerDetails[i].loanTaken += loanBalance;
+                                    customerDetails[i].loanLimit = customerDetails[i].loanLimit - loanBalance;
                                     customerDetails[i].loanApplied = true;
-                                    fs.writeFileSync(path.resolve(__dirname, 'user.json'), JSON.stringify(customerDetails, null, 2));
+                                    fs.writeFileSync(path.resolve(__dirname, Enum_js_1.detail.userDB), JSON.stringify(customerDetails, null, 2));
                                     console.log("You successfully applied for a loan.");
                                     if (customerDetails[i].loanLimit < 1) {
                                         customerDetails[i].loanApplicable = false;
-                                        fs.writeFileSync(path.resolve(__dirname, 'user.json'), JSON.stringify(customerDetails, null, 2));
+                                        fs.writeFileSync(path.resolve(__dirname, Enum_js_1.detail.userDB), JSON.stringify(customerDetails, null, 2));
                                     }
                                     else {
                                         customerDetails[i].loanApplicable = true;
-                                        fs.writeFileSync(path.resolve(__dirname, 'user.json'), JSON.stringify(customerDetails, null, 2));
+                                        fs.writeFileSync(path.resolve(__dirname, Enum_js_1.detail.userDB), JSON.stringify(customerDetails, null, 2));
                                     }
                                 }
                             }
@@ -375,17 +375,17 @@ var Bank = /** @class */ (function () {
                                     console.log("Please enter valid amount");
                                     check = false;
                                 }
-                                else if (customerDetails[i].Loanamount < paidAmount) {
+                                else if (customerDetails[i].loanAmount < paidAmount) {
                                     console.log("You are entering an amount greater than the loan amount.");
                                 }
                                 else {
                                     console.log("You successfully paid the loan.");
-                                    customerDetails[i].Loanamount -= paidAmount;
+                                    customerDetails[i].loanAmount -= paidAmount;
                                     customerDetails[i].loanLimit += paidAmount;
-                                    fs.writeFileSync(path.resolve(__dirname, 'user.json'), JSON.stringify(customerDetails, null, 2));
+                                    fs.writeFileSync(path.resolve(__dirname, Enum_js_1.detail.userDB), JSON.stringify(customerDetails, null, 2));
                                     if (customerDetails[i].loanLimit > 0) {
                                         customerDetails[i].loanApplicable = true;
-                                        fs.writeFileSync(path.resolve(__dirname, 'user.json'), JSON.stringify(customerDetails, null, 2));
+                                        fs.writeFileSync(path.resolve(__dirname, Enum_js_1.detail.userDB), JSON.stringify(customerDetails, null, 2));
                                     }
                                 }
                             }
@@ -396,7 +396,7 @@ var Bank = /** @class */ (function () {
                     console.log("  *** Your loan amount *** ");
                     for (var i = 0; i < customerDetails.length; i++) {
                         if (customerDetails[i].username == userInputName && customerDetails[i].password == userInputPass) {
-                            var viewBalance = customerDetails[i].Loanamount;
+                            var viewBalance = customerDetails[i].loanAmount;
                             console.log("You have taken a Rs.".concat(viewBalance, " loan from the bank"));
                         }
                     }
@@ -423,19 +423,19 @@ var Bank = /** @class */ (function () {
                     for (var i_1 = 0; i_1 < customerDetails.length; i_1++) {
                         if (customerDetails[i_1].accountNo === receiverAccountNumber) {
                             customerDetails[i_1].amount += transferAmount;
-                            fs.writeFileSync(path.resolve(__dirname, 'user.json'), JSON.stringify(customerDetails, null, 2));
+                            fs.writeFileSync(path.resolve(__dirname, Enum_js_1.detail.userDB), JSON.stringify(customerDetails, null, 2));
                             console.log("The money was transferred successfully.");
                             if (customerDetails[i_1].amount > 100000) {
-                                customerDetails[i_1].accountType = "Current";
-                                fs.writeFileSync(path.resolve(__dirname, 'user.json'), JSON.stringify(customerDetails, null, 2));
+                                customerDetails[i_1].accountType = Enum_js_1.detail.currentAccount;
+                                fs.writeFileSync(path.resolve(__dirname, Enum_js_1.detail.userDB), JSON.stringify(customerDetails, null, 2));
                             }
                         }
                     }
                     customerDetails[i].amount = customerDetails[i].amount - transferAmount;
-                    fs.writeFileSync(path.resolve(__dirname, 'user.json'), JSON.stringify(customerDetails, null, 2));
+                    fs.writeFileSync(path.resolve(__dirname, Enum_js_1.detail.userDB), JSON.stringify(customerDetails, null, 2));
                     if (customerDetails[i].amount <= 100000) {
-                        customerDetails[i].accountType = "Saving";
-                        fs.writeFileSync(path.resolve(__dirname, 'user.json'), JSON.stringify(customerDetails, null, 2));
+                        customerDetails[i].accountType = Enum_js_1.detail.savingAccount;
+                        fs.writeFileSync(path.resolve(__dirname, Enum_js_1.detail.userDB), JSON.stringify(customerDetails, null, 2));
                     }
                 }
             }
@@ -452,14 +452,14 @@ var user = new User();
 var bank = new Bank();
 var admin = new Admin();
 do {
-    response = parseInt(prompt("Please choose  one option \n    1. User Login\n    2. Admin Login\n    "));
+    response = parseInt(prompt(Enum_js_1.detail.bankLogin));
     console.clear();
     if (response === 1) {
         console.clear();
         var userResponse = void 0;
         do {
             console.log("******* User Login *****");
-            userResponse = parseInt(prompt("Please choose one  option :\n    \n     1. Create a New Account\n     2. Show Details \n     3. Deposit (Upto 7 Digit Amount)\n     4. Withdraw\n     5. View Balance\n     6. Loan Section \n     7. Money Transfer \n     8. Exit\n     "));
+            userResponse = parseInt(prompt(Enum_js_1.detail.userLogin));
             console.clear();
             switch (userResponse) {
                 case 1:
@@ -467,7 +467,7 @@ do {
                     console.log("**** New Account registrations ****");
                     userDetails = user.createAccount();
                     customerDetails.push(userDetails);
-                    fs.writeFileSync(path.resolve(__dirname, 'user.json'), JSON.stringify(customerDetails, null, 2));
+                    fs.writeFileSync(path.resolve(__dirname, Enum_js_1.detail.userDB), JSON.stringify(customerDetails, null, 2));
                     console.log("Account created successfully");
                     break;
                 case 2:
@@ -514,7 +514,7 @@ do {
             console.log("Admin login successfully done");
             console.clear();
             do {
-                adminResponse = parseInt(prompt("Please choose option :\n     1. User Details \n     2. Account Holder details Based On amount\n     3. Saving Accounts  (Amount less than 1 Lakh)\n     4. Current Accounts (Amount more than 1 Lakh)\n     5. Delete Account   (Zero Balance Holder)\n     6. Approve Loan \n     7. Loan Holder\n     8. Bank Statement \n     9. Exit\n     "));
+                adminResponse = parseInt(prompt(Enum_js_1.detail.adminLogin));
                 console.clear();
                 switch (adminResponse) {
                     case 1:
