@@ -3,7 +3,7 @@ export enum detail {
     name = "Please enter your name. :  " ,
     age = "Please enter your age. :  " ,
     contactNo  = "Please enter your contact number.:  ",
-    email = "Please enter your email (exmple@gmail.com):  ",
+    email = "Please enter your email.:  ",
     dateOfBirth = "Please enter your date of birth (DD-MM-YEAR):  ",
     accountNo = "Auto Generated : ",
     username = "Please create your user Id.:  " ,
@@ -18,7 +18,9 @@ export enum detail {
     savingAccount = "Saving",
     currentAccount = "Current",
     userDB = './DB/user.json',
+    bankDB = '../DB/user.json',
     adminDB = './DB/admin.json',
+    adminDb = '../DB/admin.json',
     fs = 'fs',
     path = 'path',
     prompt =  'prompt-sync',
@@ -55,16 +57,11 @@ export enum detail {
      2. Account Holder details Based On amount
      3. Saving Accounts  (Amount less than 1 Lakh)
      4. Current Accounts (Amount more than 1 Lakh)
-     5. Delete Account   (Zero Balance Holder)
-     6. Approve Loan 
-     7. Loan Holder
-     8. Bank Statement 
-     9. Exit
+     5. Approve Loan 
+     6. Loan Holder
+     7. Bank Statement 
+     8. Exit
      `
-
-
-
-
 }
 
 
