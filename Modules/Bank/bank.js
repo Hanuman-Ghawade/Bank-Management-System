@@ -2,6 +2,8 @@
 exports.__esModule = true;
 exports.Bank = exports.adminDetails = exports.customerDetails = exports.path = exports.fs = void 0;
 var InputDetailEnum_1 = require("../../Constants/InputDetailEnum");
+var sqlite3 = require(InputDetailEnum_1.detail.sqlite).verbose();
+var db = new sqlite3.Database(InputDetailEnum_1.detail.database);
 var ps = require(InputDetailEnum_1.detail.prompt);
 var prompt = ps();
 var fs = require(InputDetailEnum_1.detail.fs);
@@ -19,66 +21,65 @@ var Bank = /** @class */ (function () {
     function Bank() {
     }
     Bank.prototype.deposit = function () {
-        var check;
-        do {
-            check = true;
-            var userInputName = prompt(InputDetailEnum_1.detail.userInput);
-            var userInputPass = prompt(InputDetailEnum_1.detail.userPass);
-            for (var i = 0; i < customerDetails.length; i++) {
-                if (customerDetails[i].username == userInputName && customerDetails[i].password == userInputPass) {
-                    var amount = Number(parseInt(prompt(InputDetailEnum_1.detail.deposit)));
-                    var balance = Number(customerDetails[i].amount);
-                    if (Number.isNaN(amount) || amount < 1 || String(amount).length >= 7) {
-                        console.log("Please enter valid amount");
-                        check = false;
-                    }
-                    else {
-                        balance = balance + amount;
-                        customerDetails[i].amount = balance;
-                        fs.writeFileSync(path.resolve(__dirname, InputDetailEnum_1.detail.bankDB), JSON.stringify(customerDetails, null, 2));
-                        console.log("You have deposited Rs ".concat(amount, " in your account ."));
-                        if (customerDetails[i].amount > 100000) {
-                            customerDetails[i].accountType = InputDetailEnum_1.detail.currentAccount;
-                            fs.writeFileSync(path.resolve(__dirname, InputDetailEnum_1.detail.bankDB), JSON.stringify(customerDetails, null, 2));
-                        }
-                    }
-                }
-            }
-        } while (check == false);
-    };
-    Bank.prototype.withdraw = function () {
-        var check;
+        var balanceAmount;
+        var totalBalance;
         var userInputName = prompt(InputDetailEnum_1.detail.userInput);
         var userInputPass = prompt(InputDetailEnum_1.detail.userPass);
-        do {
-            check = true;
-            for (var i = 0; i < customerDetails.length; i++) {
-                if (customerDetails[i].username == userInputName && customerDetails[i].password == userInputPass) {
-                    var withDraw = Number(parseInt(prompt(InputDetailEnum_1.detail.withdraw)));
-                    if (Number.isNaN(withDraw) || withDraw < 1) {
-                        console.log("Please enter valid amount");
-                        check = false;
-                    }
-                    else if (withDraw > customerDetails[i].amount) {
-                        console.log("Insufficient fund");
-                    }
-                    else {
-                        console.log("The amount was withdrawn successfully.");
-                        var balance = customerDetails[i].amount - withDraw;
-                        customerDetails[i].amount = balance;
-                        fs.writeFileSync(path.resolve(__dirname, InputDetailEnum_1.detail.bankDB), JSON.stringify(customerDetails, null, 2));
-                        console.log("The remaining balance in your account is ".concat(balance));
-                        if (customerDetails[i].amount <= 100000) {
-                            customerDetails[i].accountType = InputDetailEnum_1.detail.savingAccount;
-                            fs.writeFileSync(path.resolve(__dirname, InputDetailEnum_1.detail.bankDB), JSON.stringify(customerDetails, null, 2));
-                        }
-                    }
-                    break;
-                }
+        var sqlOne = "SELECT * FROM user WHERE username = '".concat(userInputName, "' AND password = '").concat(userInputPass, "'");
+        db.all(sqlOne, [], function (err, rows) {
+            if (err)
+                return console.log(err.message);
+            if (rows.length == 0) {
+                console.log("Invalid username or password");
             }
-        } while (check == false);
+            rows.forEach(function (row) {
+                balanceAmount = row.amount;
+                var deposit = Number(parseInt(prompt(InputDetailEnum_1.detail.deposit)));
+                totalBalance = balanceAmount + deposit;
+                var updateQuery = "UPDATE user\n                               SET amount = ".concat(totalBalance, "\n                               WHERE username = '").concat(userInputName, "'");
+                db.run(updateQuery, function (err) {
+                    if (err) {
+                        return console.error(err.message);
+                    }
+                    console.log(" The funds have been successfully deposited into your account.");
+                    console.log("Updated balance is ".concat(totalBalance));
+                });
+            });
+        });
     };
-    Bank.prototype.view_balance = function () {
+    Bank.prototype.withdraw = function () {
+        var balanceAmount;
+        var totalBalance;
+        var userInputName = prompt(InputDetailEnum_1.detail.userInput);
+        var userInputPass = prompt(InputDetailEnum_1.detail.userPass);
+        var sqlOne = "SELECT * FROM user WHERE username = '".concat(userInputName, "' AND password = '").concat(userInputPass, "'");
+        db.all(sqlOne, [], function (err, rows) {
+            if (err)
+                return console.log(err.message);
+            if (rows.length == 0) {
+                console.log("Invalid username or password");
+            }
+            rows.forEach(function (row) {
+                balanceAmount = row.amount;
+                var withdrawAmount = Number(parseInt(prompt(InputDetailEnum_1.detail.withdraw)));
+                if (withdrawAmount > balanceAmount) {
+                    console.log("Insufficient funds");
+                }
+                else {
+                    totalBalance = balanceAmount - withdrawAmount;
+                    var updateQuery = "UPDATE user\n                               SET amount = ".concat(totalBalance, "\n                               WHERE username = '").concat(userInputName, "'");
+                    db.run(updateQuery, function (err) {
+                        if (err) {
+                            return console.error(err.message);
+                        }
+                        console.log(" The funds have been successfully deposited into your account.");
+                        console.log("Updated balance is ".concat(totalBalance));
+                    });
+                }
+            });
+        });
+    };
+    Bank.prototype.viewBalance = function () {
         var userInputName = prompt(InputDetailEnum_1.detail.userInput);
         var userInputPass = prompt(InputDetailEnum_1.detail.userPass);
         for (var i = 0; i < customerDetails.length; i++) {
@@ -88,7 +89,7 @@ var Bank = /** @class */ (function () {
             }
         }
     };
-    Bank.prototype.LoanSection = function () {
+    Bank.prototype.loanSection = function () {
         var loanResponse;
         var userInputName = prompt(InputDetailEnum_1.detail.userInput);
         var userInputPass = prompt(InputDetailEnum_1.detail.userPass);

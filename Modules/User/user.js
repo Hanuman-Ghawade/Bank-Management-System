@@ -1,21 +1,38 @@
 "use strict";
 exports.__esModule = true;
-exports.User = exports.adminDetails = exports.customerDetails = exports.path = exports.fs = void 0;
+exports.User = void 0;
 var InputDetailEnum_1 = require("../../Constants/InputDetailEnum");
+var sqlite3 = require(InputDetailEnum_1.detail.sqlite).verbose();
+var db = new sqlite3.Database(InputDetailEnum_1.detail.database);
 var ps = require(InputDetailEnum_1.detail.prompt);
 var prompt = ps();
-var fs = require(InputDetailEnum_1.detail.fs);
-exports.fs = fs;
-var path = require(InputDetailEnum_1.detail.path);
-exports.path = path;
-var customerData = fs.readFileSync(InputDetailEnum_1.detail.userDB);
-var customerDetails = JSON.parse(customerData);
-exports.customerDetails = customerDetails;
-var adminData = fs.readFileSync(InputDetailEnum_1.detail.adminDB);
-var adminDetails = JSON.parse(adminData);
-exports.adminDetails = adminDetails;
 var User = /** @class */ (function () {
     function User() {
+        // Details of the customer 
+        this.accessData = function () {
+            var check;
+            var _loop_1 = function () {
+                var check_1 = true;
+                userInputName = prompt(InputDetailEnum_1.detail.userInput);
+                userInputPass = prompt(InputDetailEnum_1.detail.userPass);
+                var sqlOne = "SELECT * FROM user WHERE username = '".concat(userInputName, "' AND password = '").concat(userInputPass, "'");
+                db.all(sqlOne, [], function (err, rows) {
+                    if (err)
+                        return console.log(err.message);
+                    if (rows.length == 0) {
+                        console.log("Invalid username or password");
+                        check_1 = false;
+                    }
+                    rows.forEach(function (row) {
+                        console.log("Name: ".concat(row.Name, " , Mobile Number : ").concat(row.mobileNumber, ", Email : ").concat(row.email, ",Account Number : ").concat(row.accountNo, ",Amount : ").concat(row.amount));
+                    });
+                });
+            };
+            var userInputName, userInputPass;
+            do {
+                _loop_1();
+            } while (check == false);
+        };
     }
     User.prototype.createAccount = function () {
         var check;
@@ -50,7 +67,7 @@ var User = /** @class */ (function () {
         // input details  for email
         do {
             check = true;
-            var emailPattern = /^\w+@[a-zA-Z_]+?\.[a-zA-Z]{2,3}$/;
+            var emailPattern = new RegExp(/^\w+@[a-zA-Z_]+?\.[a-zA-Z]{2,3}$/);
             var email = prompt(InputDetailEnum_1.detail.email);
             if (email.match(emailPattern) === null) {
                 console.log("Please enter valid email");
@@ -105,27 +122,6 @@ var User = /** @class */ (function () {
         var loanApplied = false;
         // return the all input 
         return { name: name, age: age, mobileNumber: mobileNumber, email: email, birth: birth, accountNo: accountNo, accountType: accountType, username: username, password: password, amount: amount, loanApplicable: loanApplicable, loanTaken: loanTaken, loanAmount: loanAmount, loanLimit: loanLimit, loanApplied: loanApplied };
-    };
-    // Details of the customer 
-    User.prototype.showDetails = function () {
-        var check;
-        var no = 0;
-        var userInputName;
-        var userInputPass;
-        check = true;
-        while (check != false) {
-            userInputName = prompt(InputDetailEnum_1.detail.userInput);
-            userInputPass = prompt(InputDetailEnum_1.detail.userPass);
-            for (var i = 0; i < customerDetails.length; i++) {
-                if (customerDetails[i].username == userInputName && customerDetails[i].password == userInputPass) {
-                    check = false;
-                    no = i;
-                }
-            }
-        }
-        if (check === false) {
-            console.table(customerDetails[no]);
-        }
     };
     return User;
 }());

@@ -1,18 +1,12 @@
 import { detail } from "../../Constants/InputDetailEnum";
 // import {regularExpression} from "../RegularExpression/regExp";
 import { userDetail} from "../../Constants/UserDetails";
+var sqlite3 = require(detail.sqlite).verbose();
+var db = new sqlite3.Database(detail.database);
 
 const ps = require(detail.prompt)
 const prompt = ps()
 
-let fs = require(detail.fs);
-let path = require(detail.path);
-let customerData = fs.readFileSync(detail.userDB);
-let customerDetails = JSON.parse(customerData);
-let adminData = fs.readFileSync(detail.adminDB);
-let adminDetails = JSON.parse(adminData)
-
-export {fs,path , customerDetails,adminDetails}
 
 export class User implements userDetail{
     name: string;
@@ -67,8 +61,8 @@ export class User implements userDetail{
         // input details  for email
         do {
             check = true;
-            let emailPattern :RegExp = /^\w+@[a-zA-Z_]+?\.[a-zA-Z]{2,3}$/;
-            var email: string = prompt(detail.email);
+            let emailPattern  : RegExp  =  new RegExp(/^\w+@[a-zA-Z_]+?\.[a-zA-Z]{2,3}$/) ;
+            var email :string = prompt(detail.email);
             if (email.match(emailPattern) === null) {
                 console.log("Please enter valid email");
                 check = false;
@@ -151,31 +145,32 @@ export class User implements userDetail{
         let loanApplied: boolean = false;
 
         // return the all input 
-
-        return { name, age, mobileNumber, email, birth, accountNo, accountType, username, password, amount, loanApplicable, loanTaken, loanAmount, loanLimit, loanApplied };
+    return { name, age, mobileNumber, email, birth, accountNo, accountType, username, password, amount, loanApplicable, loanTaken, loanAmount, loanLimit, loanApplied };
+  
     }
 
     // Details of the customer 
 
-    showDetails () : void {
-        let check: boolean;
-        let no: number = 0;
-        var userInputName: string;
-        var userInputPass: string
-        check = true
-        while (check != false) {
-            userInputName = prompt(detail.userInput)
-            userInputPass = prompt(detail.userPass);
-            for (let i = 0; i < customerDetails.length; i++) {
-                if (customerDetails[i].username == userInputName && customerDetails[i].password == userInputPass) {
-                    check = false
-                    no = i;
-                }
-            }
-        }
-        if (check === false) {
-            console.table(customerDetails[no])
-        }
-    }
+        accessData = () => {
+            let check :boolean;
+            do{
+            let check = true;
+            var userInputName: string = prompt(detail.userInput);
+            var userInputPass: string = prompt(detail.userPass);
+            const sqlOne = `SELECT * FROM user WHERE username = '${userInputName}' AND password = '${userInputPass}'`;
+                db.all(sqlOne, [], (err: { message: string }, rows: any[]) => {
+                    if (err) return console.log(err.message);
+                    if(rows.length == 0 ){
+                        console.log("Invalid username or password");
+                        check = false;
+                    }
+                    rows.forEach((row) => {
+                        console.log(`Name: ${row.Name} , Mobile Number : ${row.mobileNumber}, Email : ${row.email},Account Number : ${row.accountNo},Amount : ${row.amount}`);
+                    })
+                })
+            }while(check == false)       
+         }
 }
+        
+
 

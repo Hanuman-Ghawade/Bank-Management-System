@@ -48,19 +48,19 @@ var Admin = /** @class */ (function () {
             }
         } while (response != 4);
     };
-    Admin.prototype.SavingAccount = function () {
+    Admin.prototype.savingAccount = function () {
         var authorizedUser = customerDetails.filter(function (ele) {
             return ele.accountType == InputDetailEnum_1.detail.savingAccount;
         });
         console.table(authorizedUser);
     };
-    Admin.prototype.CurrentAccount = function () {
+    Admin.prototype.currentAccount = function () {
         var currentAccount = customerDetails.filter(function (ele) {
             return ele.accountType == InputDetailEnum_1.detail.currentAccount;
         });
         console.table(currentAccount);
     };
-    Admin.prototype.ApproveLoan = function () {
+    Admin.prototype.approveLoan = function () {
         for (var i = 0; i < customerDetails.length; i++) {
             if (customerDetails[i].loanApplied == true) {
                 customerDetails[i].loanApplied = false;
@@ -75,13 +75,13 @@ var Admin = /** @class */ (function () {
         }
         console.log("The loan was approved successfully.");
     };
-    Admin.prototype.LoanHolder = function () {
+    Admin.prototype.loanHolder = function () {
         var loanUser = customerDetails.filter(function (ele) {
             return ele.loanAmount > 0;
         });
         console.table(loanUser);
     };
-    Admin.prototype.BankAmount = function () {
+    Admin.prototype.bankAmount = function () {
         var BankCash = 0;
         var LoanCash = 0;
         var count = 0;

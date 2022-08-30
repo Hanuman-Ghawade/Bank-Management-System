@@ -36,7 +36,7 @@ export class Admin implements userDetail{
     }
     accountHolderBasedOnAmount(): void {
         do {
-           var  response :number = parseInt(prompt(detail.amountHolder))
+           var  response : number = parseInt(prompt(detail.amountHolder))
             console.clear()
             switch (response) {
                 case 1:
@@ -66,14 +66,14 @@ export class Admin implements userDetail{
         } while (response != 4)
     }
 
-    SavingAccount(): void {
+    savingAccount(): void {
 
         const authorizedUser = customerDetails.filter((ele: { accountType: string }) => {
             return ele.accountType == detail.savingAccount;
         })
         console.table(authorizedUser);
     }
-    CurrentAccount(): void {
+    currentAccount(): void {
 
         const currentAccount: string = customerDetails.filter((ele: { accountType: string }) => {
             return ele.accountType == detail.currentAccount;
@@ -81,7 +81,7 @@ export class Admin implements userDetail{
         console.table(currentAccount);
 
     }
-    ApproveLoan(): void {
+    approveLoan(): void {
         for (let i = 0; i < customerDetails.length; i++) {
             if (customerDetails[i].loanApplied == true) {
                 customerDetails[i].loanApplied = false
@@ -98,7 +98,7 @@ export class Admin implements userDetail{
         console.log("The loan was approved successfully.")
     }
 
-    LoanHolder(): void {
+    loanHolder(): void {
 
         const loanUser = customerDetails.filter((ele:{loanAmount:number}) => {
             return ele.loanAmount > 0;
@@ -107,7 +107,7 @@ export class Admin implements userDetail{
 
 
     }
-    BankAmount(): void {
+    bankAmount(): void {
         let BankCash: number = 0;
         let LoanCash: number = 0;
         let count :number  = 0

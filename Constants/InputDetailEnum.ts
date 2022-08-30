@@ -40,6 +40,7 @@ export enum detail {
     bankLogin = `Please choose  one option 
     1. User Login
     2. Admin Login
+    3. Exit
     `,
     userLogin = `Please choose one  option :
     
@@ -61,7 +62,12 @@ export enum detail {
      6. Loan Holder
      7. Bank Statement 
      8. Exit
-     `
+     `,
+     database = './DB/bank.db',
+     sqlite = 'sqlite3',
+    createTableQuery = "CREATE TABLE user (Name TEXT, Age INT, mobileNumber INTEGER, email TEXT, birth TEXT, accountNo INTEGER, accountType TEXT, username TEXT, password TEXT, amount INTEGER, loanApplicable NUMERIC, loanTaken INTEGER, loanAmount INTEGER, loanLimit INTEGER, loanApplied NUMERIC)",
+    insertDataQuery = "INSERT INTO user VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
+    selectQuery = "SELECT * FROM user",
 }
 
 

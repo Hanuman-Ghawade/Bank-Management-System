@@ -66,5 +66,22 @@
     "loanAmount": 0,
     "loanLimit": 500000,
     "loanApplied": false
+  },
+  {
+    "name": "Tushar Kawade",
+    "age": 22,
+    "mobileNumber": 9503034025,
+    "email": "tushar@gmail.com",
+    "birth": "16-07-1995",
+    "accountNo": 5754,
+    "accountType": "Saving",
+    "username": "tushar",
+    "password": "tushar",
+    "amount": 0,
+    "loanApplicable": true,
+    "loanTaken": 0,
+    "loanAmount": 0,
+    "loanLimit": 500000,
+    "loanApplied": false
   }
 ]

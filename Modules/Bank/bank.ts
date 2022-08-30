@@ -1,5 +1,8 @@
 import { detail } from "../../Constants/InputDetailEnum";
 import { userDetail} from "../../Constants/UserDetails";
+var sqlite3 = require(detail.sqlite).verbose();
+var db = new sqlite3.Database(detail.database);
+
 const ps = require(detail.prompt)
 const prompt = ps()
 
@@ -31,66 +34,70 @@ export class Bank implements userDetail{
     loanApplied: boolean;
 
     public deposit(): void {
-        let check: boolean
-        do {
-            check = true;
-            var userInputName: string = prompt(detail.userInput)
-            var userInputPass: string = prompt(detail.userPass)
-            for (let i = 0; i < customerDetails.length; i++) {
-                if (customerDetails[i].username == userInputName && customerDetails[i].password == userInputPass) {
-                    let amount: number = Number(parseInt(prompt(detail.deposit)))
-                    let balance: number = Number(customerDetails[i].amount);
-                    if (Number.isNaN(amount) || amount < 1 || String(amount).length >= 7) {
-                        console.log("Please enter valid amount")
-                        check = false;
-                    }
-                    else {
-                        balance = balance + amount
-                        customerDetails[i].amount = balance;
-                        fs.writeFileSync(path.resolve(__dirname, detail.bankDB), JSON.stringify(customerDetails, null, 2));
-                        console.log(`You have deposited Rs ${amount} in your account .`)
-                        if (customerDetails[i].amount > 100000) {
-                            customerDetails[i].accountType = detail.currentAccount;
-                            fs.writeFileSync(path.resolve(__dirname,detail.bankDB), JSON.stringify(customerDetails, null, 2));
-                        }
-                    }
-                }
+        let balanceAmount :number;
+        let totalBalance :number
+        var userInputName: number = prompt(detail.userInput);
+        var userInputPass: number = prompt(detail.userPass);
+        const sqlOne = `SELECT * FROM user WHERE username = '${userInputName}' AND password = '${userInputPass}'`;
+        db.all(sqlOne, [], (err: { message: string }, rows: any[]) => {
+            if (err) return console.log(err.message);
+            if (rows.length == 0) {
+                console.log("Invalid username or password");
             }
-        } while (check == false)
+            rows.forEach((row) => {
+            balanceAmount = row.amount
+                var deposit: number = Number(parseInt(prompt(detail.deposit)));
+                totalBalance = balanceAmount + deposit;
+                let updateQuery = `UPDATE user
+                               SET amount = ${totalBalance}
+                               WHERE username = '${userInputName}'`;
+
+                db.run(updateQuery, function (err: { message: string }) {
+                    if (err) {
+                        return console.error(err.message);
+                    }
+                    console.log(" The funds have been successfully deposited into your account.");
+                    console.log(`Updated balance is ${totalBalance}`)
+                }); 
+            })
+        })
+             
     }
     withdraw (): void {
-        let check: boolean
-        var userInputName: number = prompt(detail.userInput)
-        var userInputPass: number = prompt(detail.userPass)
-        do {
-            check = true;
-            for (let i = 0; i < customerDetails.length; i++) {
-                if (customerDetails[i].username == userInputName && customerDetails[i].password == userInputPass) {
-                    var withDraw: number = Number(parseInt(prompt(detail.withdraw)))
-                    if (Number.isNaN(withDraw) || withDraw < 1) {
-                        console.log("Please enter valid amount")
-                        check = false
-                    }
-                    else if (withDraw > customerDetails[i].amount) {
-                        console.log(`Insufficient fund`);
-                    } else {
-                        console.log("The amount was withdrawn successfully.")
-                        let balance: number = customerDetails[i].amount - withDraw;
-                        customerDetails[i].amount = balance;
-                        fs.writeFileSync(path.resolve(__dirname, detail.bankDB), JSON.stringify(customerDetails, null, 2));
-                        console.log(`The remaining balance in your account is ${balance}`)
-                        if (customerDetails[i].amount <= 100000) {
-                            customerDetails[i].accountType = detail.savingAccount;
-                            fs.writeFileSync(path.resolve(__dirname, detail.bankDB), JSON.stringify(customerDetails, null, 2));
-                        }
-                    }
-                    break
-                }
+        let balanceAmount: number;
+        let totalBalance: number
+        var userInputName: number = prompt(detail.userInput);
+        var userInputPass: number = prompt(detail.userPass);
+        const sqlOne = `SELECT * FROM user WHERE username = '${userInputName}' AND password = '${userInputPass}'`;
+        db.all(sqlOne, [], (err: { message: string }, rows: any[]) => {
+            if (err) return console.log(err.message);
+            if (rows.length == 0) {
+                console.log("Invalid username or password");
             }
-        } while (check == false)
+            rows.forEach((row) => {
+                balanceAmount = row.amount
+                var withdrawAmount: number = Number(parseInt(prompt(detail.withdraw)));
+
+                if (withdrawAmount > balanceAmount){
+                    console.log("Insufficient funds")
+                }else{
+                    totalBalance = balanceAmount - withdrawAmount;
+                    let updateQuery = `UPDATE user
+                               SET amount = ${totalBalance}
+                               WHERE username = '${userInputName}'`;
+                    db.run(updateQuery, function (err: { message: string }) {
+                        if (err) {
+                            return console.error(err.message);
+                        }
+                        console.log(" The funds have been successfully deposited into your account.");
+                        console.log(`Updated balance is ${totalBalance}`)
+                    });
+                }   
+            })
+        }) 
     }
 
-    view_balance(): void {
+    viewBalance(): void {
         var userInputName: string = prompt(detail.userInput)
         var userInputPass: string = prompt(detail.userPass);
         for (let i = 0; i < customerDetails.length; i++) {
@@ -100,7 +107,7 @@ export class Bank implements userDetail{
             }
         }
     }
-    LoanSection(): void {
+    loanSection(): void {
         let loanResponse: number;
         var userInputName: string = prompt(detail.userInput)
         var userInputPass: string = prompt(detail.userPass)
