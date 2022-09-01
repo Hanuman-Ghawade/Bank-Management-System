@@ -1,6 +1,9 @@
 import { detail } from "../../Constants/InputDetailEnum";
 import {  userDetail} from "../../Constants/UserDetails";
 
+var sqlite3 = require(detail.sqlite).verbose();
+var db = new sqlite3.Database(detail.database);
+
 const ps = require(detail.prompt)
 const prompt = ps()
 
@@ -30,11 +33,11 @@ export class Admin implements userDetail{
     loanLimit: number
     loanApplied: boolean;
 
-    userDetails(): void {
+    userDetails = (): void => {
         console.table(customerDetails)
 
     }
-    accountHolderBasedOnAmount(): void {
+    accountHolderBasedOnAmount = (): void => {
         do {
            var  response : number = parseInt(prompt(detail.amountHolder))
             console.clear()
@@ -66,14 +69,14 @@ export class Admin implements userDetail{
         } while (response != 4)
     }
 
-    savingAccount(): void {
+    savingAccount = (): void => {
 
         const authorizedUser = customerDetails.filter((ele: { accountType: string }) => {
             return ele.accountType == detail.savingAccount;
         })
         console.table(authorizedUser);
     }
-    currentAccount(): void {
+    currentAccount = (): void => {
 
         const currentAccount: string = customerDetails.filter((ele: { accountType: string }) => {
             return ele.accountType == detail.currentAccount;
@@ -81,24 +84,35 @@ export class Admin implements userDetail{
         console.table(currentAccount);
 
     }
-    approveLoan(): void {
-        for (let i = 0; i < customerDetails.length; i++) {
-            if (customerDetails[i].loanApplied == true) {
-                customerDetails[i].loanApplied = false
-                customerDetails[i].amount += customerDetails[i].loanTaken
-                customerDetails[i].loanTaken = 0
-                fs.writeFileSync(path.resolve(__dirname, detail.bankDB), JSON.stringify(customerDetails, null, 2));
-                if (customerDetails[i].amount > 100000) {
-                    customerDetails[i].accountType = detail.currentAccount;
-                    fs.writeFileSync(path.resolve(__dirname, detail.bankDB), JSON.stringify(customerDetails, null, 2));
-                }
+    approveLoan = (): void =>  {
+       
+        var user: string = prompt(detail.userInput);
 
-            }
-        }
-        console.log("The loan was approved successfully.")
+            const ViewBalanceQuery: string = `SELECT amount , loanTaken FROM user`;
+            db.all(ViewBalanceQuery, [], (err: { message: string }, rows: any[]) => {
+                if (err) return console.log(err.message);
+                rows.forEach((row) => {
+                    let userBalanceAmount : number = row.amount;
+                    let userLoanAmount : number  = row.loanTaken;
+                    let totalUserAmount : number = userBalanceAmount + userLoanAmount
+                    console.log(totalUserAmount)
+
+                    let updateQuery: string = `UPDATE user
+                               SET amount = '${totalUserAmount}', loanTaken = 0
+                               WHERE loanApplied = 1 `;
+                    console.log("loan update")
+                    db.run(updateQuery, (err: { message: string }) => {
+                        if (err) {
+                            return console.error(err.message);
+                        }
+                        console.log("The loan was approved successfully..");
+    
+                })
+            })  
+    
+                })
     }
-
-    loanHolder(): void {
+    loanHolder = (): void =>{
 
         const loanUser = customerDetails.filter((ele:{loanAmount:number}) => {
             return ele.loanAmount > 0;
@@ -107,17 +121,17 @@ export class Admin implements userDetail{
 
 
     }
-    bankAmount(): void {
+    bankAmount = (): void => {
         let BankCash: number = 0;
         let LoanCash: number = 0;
-        let count :number  = 0
+        let count :number  = 0;
         for (let i = 0; i < customerDetails.length; i++) {
             BankCash += customerDetails[i].amount
             LoanCash += customerDetails[i].loanAmount
             count++
         }
-        console.log(`The total amount in your bank is  Rs.${BankCash}.`)
-        console.log(`The total amount lent to the customer is Rs.${LoanCash}.`)
-        console.log(` The total number of customers is ${count}.`)
+        console.log(`The total amount in your bank is  Rs.${BankCash}.`);
+        console.log(`The total amount lent to the customer is Rs.${LoanCash}.`);
+        console.log(` The total number of customers is ${count}.`);
     }
 }

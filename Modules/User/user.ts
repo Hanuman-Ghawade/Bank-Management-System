@@ -24,7 +24,7 @@ export class User implements userDetail{
     loanAmount: number;
     loanLimit: number
     loanApplied: boolean;
-    createAccount () {
+    createAccount = ():object => {
         let check: boolean;
         // Input details for name
         do {
@@ -107,10 +107,13 @@ export class User implements userDetail{
                 check = false;
             }
         } while (check == false);
-        // Intial  amount
+        
+        // Initial  amount
 
         let amount: number = 0;
+
         // input details for password 
+        
         let password: string = prompt(detail.password);
 
         // Auto generated Account number .
@@ -132,12 +135,12 @@ export class User implements userDetail{
         //  Loan Limit
 
 
-        let loanLimit = 500000;
+        let loanLimit : number= 500000;
 
 
         // Loan Taken 
 
-        let loanTaken = 0;
+        let loanTaken : number = 0;
 
 
         // loan application 
@@ -151,21 +154,28 @@ export class User implements userDetail{
 
     // Details of the customer 
 
-        accessData = () => {
+        accessData = () :void => {
             let check :boolean;
             do{
             let check = true;
-            var userInputName: string = prompt(detail.userInput);
-            var userInputPass: string = prompt(detail.userPass);
-            const sqlOne = `SELECT * FROM user WHERE username = '${userInputName}' AND password = '${userInputPass}'`;
-                db.all(sqlOne, [], (err: { message: string }, rows: any[]) => {
+            var userInputName : string = prompt(detail.userInput);
+            var userInputPass : string = prompt(detail.userPass);
+            const selectQuery : string = `SELECT * FROM user WHERE username = '${userInputName}' AND password = '${userInputPass}'`;
+                db.all(selectQuery, [], (err: { message: string }, rows: any[]) => {
                     if (err) return console.log(err.message);
                     if(rows.length == 0 ){
                         console.log("Invalid username or password");
                         check = false;
                     }
                     rows.forEach((row) => {
-                        console.log(`Name: ${row.Name} , Mobile Number : ${row.mobileNumber}, Email : ${row.email},Account Number : ${row.accountNo},Amount : ${row.amount}`);
+                        console.table(`
+                         Name: ${row.Name} ,
+                         Mobile Number : ${row.mobileNumber}, 
+                         Email : ${row.email},
+                         Account Number : ${row.accountNo},
+                         Balance Amount : Rs.${row.amount},
+                         Loan Amount : Rs.${row.loanAmount}
+                         `);
                     })
                 })
             }while(check == false)       

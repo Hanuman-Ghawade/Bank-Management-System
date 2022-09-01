@@ -9,18 +9,15 @@ export class Data {
     }
     createTable = () => {
             db.serialize(function () {
-                db.run(detail.createTableQuery);
+                db.run(detail.createAdminTableQuery);
                 console.log("Table created");
             });
     };
     insertData = (users) => {
-        var insertQuery = db.prepare(detail.insertDataQuery);
+        var insertQuery = db.prepare(detail.insertAdminQuery);
+        // insertQuery.run("Admin",25,9503034025,"admin@gmail.com","10-11-1994","admin","admin")
         insertQuery.run(users.name,users.age,users.mobileNumber,users.email,users.birth,users.accountNo,users.accountType,users.username,users.password,users.amount,users.loanApplicable,users.loanTaken,users.loanAmount,users.loanLimit,users.loanApplied);
-        // insertQuery.run("users.name", "users.age", "users.mobileNumber", "users.email", "users.birth", "users.accountNo", "users.accountType", "users.username", "users.password", "users.amount", "users.loanApplicable", "users.loanTaken", "users.loanAmount", "users.loanLimit", "users.loanApplied");
-
         console.log("Data inserted successfully...");
-        console.log(users.name,users.age,users.mobileNumber);
-
         insertQuery.finalize();
         db.close();
     }

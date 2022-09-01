@@ -1,6 +1,8 @@
 "use strict";
 exports.__esModule = true;
-exports.detail = void 0;
+exports.detail = exports.userInputPass = exports.userInputName = void 0;
+exports.userInputName = "prompt(detail.userInput)";
+exports.userInputPass = "prompt(detail.userPass)";
 var detail;
 (function (detail) {
     detail["name"] = "Please enter your name. :  ";
@@ -30,11 +32,15 @@ var detail;
     detail["amountHolder"] = "Please choose  one option \n    1. Rs.0 amount Holder\n    2. Rs. < 1 Lakh amount Holder\n    3. Rs. > 1 Lakh amount Holder\n    4. Exit\n    ";
     detail["loanSection"] = "Please choose  one option \n    1. Apply for Loan (Upto 5 Lakh)\n    2. Loan Status \n    3. Paid Loan\n    4. Loan Amount\n    5. Exit   \n    ";
     detail["bankLogin"] = "Please choose  one option \n    1. User Login\n    2. Admin Login\n    3. Exit\n    ";
-    detail["userLogin"] = "Please choose one  option :\n    \n     1. Create a New Account\n     2. Show Details \n     3. Deposit (Upto 7 Digit Amount)\n     4. Withdraw\n     5. View Balance\n     6. Loan Section \n     7. Money Transfer \n     8. Exit\n     ";
+    detail["userLogin"] = "Please choose one  option :\n    \n     1. New Account Registration\n     2. User information \n     3. Deposit (Upto 7 Digit Amount)\n     4. Withdraw\n     5. View Balance\n     6. Loan Section \n     7. Money Transfer \n     8. Exit\n     ";
     detail["adminLogin"] = "Please choose option :\n     1. User Details \n     2. Account Holder details Based On amount\n     3. Saving Accounts  (Amount less than 1 Lakh)\n     4. Current Accounts (Amount more than 1 Lakh)\n     5. Approve Loan \n     6. Loan Holder\n     7. Bank Statement \n     8. Exit\n     ";
     detail["database"] = "./DB/bank.db";
     detail["sqlite"] = "sqlite3";
     detail["createTableQuery"] = "CREATE TABLE user (Name TEXT, Age INT, mobileNumber INTEGER, email TEXT, birth TEXT, accountNo INTEGER, accountType TEXT, username TEXT, password TEXT, amount INTEGER, loanApplicable NUMERIC, loanTaken INTEGER, loanAmount INTEGER, loanLimit INTEGER, loanApplied NUMERIC)";
     detail["insertDataQuery"] = "INSERT INTO user VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
     detail["selectQuery"] = "SELECT * FROM user";
+    detail["user"] = "./Modules/User/user.js";
+    detail["createAdminTableQuery"] = "CREATE TABLE admin (Name TEXT, Age INT, mobileNumber INTEGER, email TEXT, birth TEXT, username TEXT, password TEXT)";
+    detail["insertAdminQuery"] = "INSERT INTO admin VALUES(?,?,?,?,?,?,?)";
+    // depositQuery = `SELECT * FROM user WHERE username = '${userInputName}' AND password = '${userInputPass}'`,
 })(detail = exports.detail || (exports.detail = {}));

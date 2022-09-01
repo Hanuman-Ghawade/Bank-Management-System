@@ -1,4 +1,7 @@
 
+export const userInputName: string = "prompt(detail.userInput)";
+export const userInputPass: string = "prompt(detail.userPass)";
+
 export enum detail {
     name = "Please enter your name. :  " ,
     age = "Please enter your age. :  " ,
@@ -44,8 +47,8 @@ export enum detail {
     `,
     userLogin = `Please choose one  option :
     
-     1. Create a New Account
-     2. Show Details 
+     1. New Account Registration
+     2. User information 
      3. Deposit (Upto 7 Digit Amount)
      4. Withdraw
      5. View Balance
@@ -68,6 +71,11 @@ export enum detail {
     createTableQuery = "CREATE TABLE user (Name TEXT, Age INT, mobileNumber INTEGER, email TEXT, birth TEXT, accountNo INTEGER, accountType TEXT, username TEXT, password TEXT, amount INTEGER, loanApplicable NUMERIC, loanTaken INTEGER, loanAmount INTEGER, loanLimit INTEGER, loanApplied NUMERIC)",
     insertDataQuery = "INSERT INTO user VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
     selectQuery = "SELECT * FROM user",
+    user = "./Modules/User/user.js",
+    createAdminTableQuery = "CREATE TABLE admin (Name TEXT, Age INT, mobileNumber INTEGER, email TEXT, birth TEXT, username TEXT, password TEXT)",
+    insertAdminQuery = "INSERT INTO admin VALUES(?,?,?,?,?,?,?)",
+    // depositQuery = `SELECT * FROM user WHERE username = '${userInputName}' AND password = '${userInputPass}'`,
+
 }
 
 

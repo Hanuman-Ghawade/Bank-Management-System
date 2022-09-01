@@ -1,234 +1,216 @@
 "use strict";
 exports.__esModule = true;
-exports.Bank = exports.adminDetails = exports.customerDetails = exports.path = exports.fs = void 0;
+exports.Bank = void 0;
 var InputDetailEnum_1 = require("../../Constants/InputDetailEnum");
 var sqlite3 = require(InputDetailEnum_1.detail.sqlite).verbose();
 var db = new sqlite3.Database(InputDetailEnum_1.detail.database);
 var ps = require(InputDetailEnum_1.detail.prompt);
 var prompt = ps();
-var fs = require(InputDetailEnum_1.detail.fs);
-exports.fs = fs;
-var path = require(InputDetailEnum_1.detail.path);
-exports.path = path;
-var customerData = fs.readFileSync(InputDetailEnum_1.detail.userDB);
-var customerDetails = JSON.parse(customerData);
-exports.customerDetails = customerDetails;
-var adminData = fs.readFileSync(InputDetailEnum_1.detail.adminDB);
-var adminDetails = JSON.parse(adminData);
-exports.adminDetails = adminDetails;
-// Bank class  for the deposit , withdraw & show balance 
 var Bank = /** @class */ (function () {
     function Bank() {
-    }
-    Bank.prototype.deposit = function () {
-        var balanceAmount;
-        var totalBalance;
-        var userInputName = prompt(InputDetailEnum_1.detail.userInput);
-        var userInputPass = prompt(InputDetailEnum_1.detail.userPass);
-        var sqlOne = "SELECT * FROM user WHERE username = '".concat(userInputName, "' AND password = '").concat(userInputPass, "'");
-        db.all(sqlOne, [], function (err, rows) {
-            if (err)
-                return console.log(err.message);
-            if (rows.length == 0) {
-                console.log("Invalid username or password");
-            }
-            rows.forEach(function (row) {
-                balanceAmount = row.amount;
-                var deposit = Number(parseInt(prompt(InputDetailEnum_1.detail.deposit)));
-                totalBalance = balanceAmount + deposit;
-                var updateQuery = "UPDATE user\n                               SET amount = ".concat(totalBalance, "\n                               WHERE username = '").concat(userInputName, "'");
-                db.run(updateQuery, function (err) {
-                    if (err) {
-                        return console.error(err.message);
-                    }
-                    console.log(" The funds have been successfully deposited into your account.");
-                    console.log("Updated balance is ".concat(totalBalance));
-                });
-            });
-        });
-    };
-    Bank.prototype.withdraw = function () {
-        var balanceAmount;
-        var totalBalance;
-        var userInputName = prompt(InputDetailEnum_1.detail.userInput);
-        var userInputPass = prompt(InputDetailEnum_1.detail.userPass);
-        var sqlOne = "SELECT * FROM user WHERE username = '".concat(userInputName, "' AND password = '").concat(userInputPass, "'");
-        db.all(sqlOne, [], function (err, rows) {
-            if (err)
-                return console.log(err.message);
-            if (rows.length == 0) {
-                console.log("Invalid username or password");
-            }
-            rows.forEach(function (row) {
-                balanceAmount = row.amount;
-                var withdrawAmount = Number(parseInt(prompt(InputDetailEnum_1.detail.withdraw)));
-                if (withdrawAmount > balanceAmount) {
-                    console.log("Insufficient funds");
+        this.deposit = function () {
+            var balanceAmount;
+            var totalBalance;
+            var userInputName = prompt(InputDetailEnum_1.detail.userInput);
+            var userInputPass = prompt(InputDetailEnum_1.detail.userPass);
+            var depositQuery = "SELECT * FROM user WHERE username = '".concat(userInputName, "' AND password = '").concat(userInputPass, "'");
+            db.all(depositQuery, [], function (err, rows) {
+                if (err)
+                    return console.log(err.message);
+                if (rows.length == 0) {
+                    console.log("Invalid username or password");
                 }
-                else {
-                    totalBalance = balanceAmount - withdrawAmount;
-                    var updateQuery = "UPDATE user\n                               SET amount = ".concat(totalBalance, "\n                               WHERE username = '").concat(userInputName, "'");
-                    db.run(updateQuery, function (err) {
+                rows.forEach(function (row) {
+                    balanceAmount = row.amount;
+                    do {
+                        var deposit = Number(parseInt(prompt(InputDetailEnum_1.detail.deposit)));
+                        if ((Number.isNaN(deposit)) || deposit < 1) {
+                            console.log("Please enter valid amount");
+                        }
+                    } while ((Number.isNaN(deposit)) || deposit < 1);
+                    totalBalance = balanceAmount + deposit;
+                    var updateDepositQuery = "UPDATE user\n                               SET amount = ".concat(totalBalance, "\n                               WHERE username = '").concat(userInputName, "'");
+                    db.run(updateDepositQuery, function (err) {
                         if (err) {
                             return console.error(err.message);
                         }
-                        console.log(" The funds have been successfully deposited into your account.");
-                        console.log("Updated balance is ".concat(totalBalance));
+                        console.log("The funds have been successfully deposited into your account.");
+                        console.log("Updated balance in your account is ".concat(totalBalance));
                     });
-                }
+                });
             });
-        });
-    };
-    Bank.prototype.viewBalance = function () {
-        var userInputName = prompt(InputDetailEnum_1.detail.userInput);
-        var userInputPass = prompt(InputDetailEnum_1.detail.userPass);
-        for (var i = 0; i < customerDetails.length; i++) {
-            if (customerDetails[i].username == userInputName && customerDetails[i].password == userInputPass) {
-                var viewBalance = customerDetails[i].amount;
-                console.log("The amount in your account ".concat(viewBalance));
-            }
-        }
-    };
-    Bank.prototype.loanSection = function () {
-        var loanResponse;
-        var userInputName = prompt(InputDetailEnum_1.detail.userInput);
-        var userInputPass = prompt(InputDetailEnum_1.detail.userPass);
-        do {
-            loanResponse = parseInt(prompt(InputDetailEnum_1.detail.loanSection));
-            console.clear();
-            var check = void 0;
-            switch (loanResponse) {
-                case 1:
-                    console.log(" *** Loan Application  *** ");
+        };
+        this.withdraw = function () {
+            var balanceAmount;
+            var totalBalance;
+            var userInputName = prompt(InputDetailEnum_1.detail.userInput);
+            var userInputPass = prompt(InputDetailEnum_1.detail.userPass);
+            var withdrawQuery = "SELECT * FROM user WHERE username = '".concat(userInputName, "' AND password = '").concat(userInputPass, "'");
+            db.all(withdrawQuery, [], function (err, rows) {
+                if (err)
+                    return console.log(err.message);
+                if (rows.length == 0) {
+                    console.log("Invalid username or password");
+                }
+                rows.forEach(function (row) {
+                    balanceAmount = row.amount;
                     do {
-                        check = true;
-                        for (var i = 0; i < customerDetails.length; i++) {
-                            if (customerDetails[i].username == userInputName && customerDetails[i].password == userInputPass) {
-                                var loanBalance = Number(parseInt(prompt(InputDetailEnum_1.detail.loanAmount)));
-                                if (customerDetails[i].loanApplied == true) {
-                                    console.log(" Your previous loan was not approved.");
-                                }
-                                else if (Number.isNaN(loanBalance) || loanBalance < 1) {
+                        var withdrawAmount = Number(parseInt(prompt(InputDetailEnum_1.detail.withdraw)));
+                        if ((Number.isNaN(withdrawAmount)) || withdrawAmount < 1) {
+                            console.log("Please enter valid amount");
+                        }
+                    } while ((Number.isNaN(withdrawAmount)) || withdrawAmount < 1);
+                    if (withdrawAmount > balanceAmount) {
+                        console.log("Insufficient funds");
+                    }
+                    else {
+                        totalBalance = balanceAmount - withdrawAmount;
+                        var withdrawBalanceQuery = "UPDATE user\n                               SET amount = ".concat(totalBalance, "\n                               WHERE username = '").concat(userInputName, "'");
+                        db.run(withdrawBalanceQuery, function (err) {
+                            if (err) {
+                                return console.error(err.message);
+                            }
+                            console.log(" The funds have been successfully withdrawn from your account.");
+                            console.log("The remaining balance in your account is ".concat(totalBalance));
+                        });
+                    }
+                });
+            });
+        };
+        this.viewBalance = function () {
+            var userInputName = prompt(InputDetailEnum_1.detail.userInput);
+            var userInputPass = prompt(InputDetailEnum_1.detail.userPass);
+            var ViewBalanceQuery = "SELECT * FROM user WHERE username = '".concat(userInputName, "' AND password = '").concat(userInputPass, "'");
+            db.all(ViewBalanceQuery, [], function (err, rows) {
+                if (err)
+                    return console.log(err.message);
+                if (rows.length == 0) {
+                    console.log("Invalid username or password");
+                }
+                rows.forEach(function (row) {
+                    console.log("Available balance in your account is ".concat(row.amount));
+                });
+            });
+        };
+        this.loanSection = function () {
+            var userInputName = prompt(InputDetailEnum_1.detail.userInput);
+            var userInputPass = prompt(InputDetailEnum_1.detail.userPass);
+            var loanQuery = "SELECT * FROM user WHERE username = '".concat(userInputName, "' AND password = '").concat(userInputPass, "'");
+            db.all(loanQuery, [], function (err, rows) {
+                if (err)
+                    return console.log(err.message);
+                if (rows.length == 0) {
+                    console.log("Invalid username or password");
+                }
+                rows.forEach(function (row) {
+                    var loanResponse = parseInt((prompt(InputDetailEnum_1.detail.loanSection)));
+                    switch (loanResponse) {
+                        case 1:
+                            // checking the loan availability 
+                            do {
+                                var loanBalance = parseInt(prompt(InputDetailEnum_1.detail.loanAmount));
+                                if ((Number.isNaN(loanBalance)) || loanBalance < 1) {
                                     console.log("Please enter valid amount");
-                                    check = false;
                                 }
-                                else if (customerDetails[i].loanApplicable == false) {
-                                    console.log(" Your loan limit has exceeded.");
-                                }
-                                else if (customerDetails[i].loanLimit < loanBalance) {
-                                    console.log("You have entered an amount that is greater than the loan limit.");
-                                    check = false;
-                                }
-                                else {
-                                    customerDetails[i].loanAmount += loanBalance;
-                                    customerDetails[i].loanTaken += loanBalance;
-                                    customerDetails[i].loanLimit = customerDetails[i].loanLimit - loanBalance;
-                                    customerDetails[i].loanApplied = true;
-                                    fs.writeFileSync(path.resolve(__dirname, InputDetailEnum_1.detail.bankDB), JSON.stringify(customerDetails, null, 2));
-                                    console.log("You successfully applied for a loan.");
-                                    if (customerDetails[i].loanLimit < 1) {
-                                        customerDetails[i].loanApplicable = false;
-                                        fs.writeFileSync(path.resolve(__dirname, InputDetailEnum_1.detail.bankDB), JSON.stringify(customerDetails, null, 2));
-                                    }
-                                    else {
-                                        customerDetails[i].loanApplicable = true;
-                                        fs.writeFileSync(path.resolve(__dirname, InputDetailEnum_1.detail.bankDB), JSON.stringify(customerDetails, null, 2));
-                                    }
-                                }
-                            }
-                        }
-                    } while (check == false);
-                    break;
-                case 2:
-                    console.log("  *** Loan Status *** ");
-                    for (var i = 0; i < customerDetails.length; i++) {
-                        if (customerDetails[i].username == userInputName && customerDetails[i].password == userInputPass) {
-                            if (customerDetails[i].loanApplied == true) {
-                                console.log("Your loan is not approved. ");
-                            }
-                            else {
-                                console.log("Your loan is approved ");
-                            }
-                        }
+                            } while ((Number.isNaN(loanBalance)) || loanBalance < 1);
+                            // Query for checking loan status 
+                            var loanApplicableQuery = "SELECT * FROM user WHERE username = '".concat(userInputName, "' AND loanApplied = '1' ");
+                            db.all(loanApplicableQuery, [], function (err, rows) {
+                                if (err)
+                                    return console.log(err.message);
+                                console.log("Your loan is not approved");
+                                // query for check previous loan amount
+                                var loanAmountQuery = "SELECT * FROM user WHERE username = '".concat(userInputName, "' AND password = '").concat(userInputPass, "'");
+                                db.all(loanAmountQuery, [], function (err, rows) {
+                                    if (err)
+                                        return console.log(err.message);
+                                    rows.forEach(function (row) {
+                                        var loanTakenAmount = row.loanAmount;
+                                        var totalLoanTaken = loanBalance + loanTakenAmount;
+                                        // loan amount updating in loan amount column
+                                        var LoanApplyQuery = "UPDATE user\n                                   SET loanAmount = ".concat(totalLoanTaken, " ,loanTaken = ").concat(loanBalance, "\n                                   WHERE username = '").concat(userInputName, "'");
+                                        db.run(LoanApplyQuery, function (err) {
+                                            if (err) {
+                                                return console.error(err.message);
+                                            }
+                                            console.log("You successfully applied for a loan.");
+                                        });
+                                        // loan applied become true 
+                                        var loanAppliedQuery = "UPDATE user\n                               SET \tloanApplied = '".concat(1, "'\n                               WHERE username = '").concat(userInputName, "'");
+                                        db.run(loanAppliedQuery, function (err) {
+                                            if (err) {
+                                                return console.error(err.message);
+                                            }
+                                        });
+                                    });
+                                });
+                            });
+                        case 2:
+                            var loanAmountQuery = "SELECT * FROM user WHERE username = '".concat(userInputName, "' AND password = '").concat(userInputPass, "' AND loanApplied = '1' ");
+                            db.all(loanAmountQuery, [], function (err, rows) {
+                                if (err)
+                                    return console.log(err.message);
+                                rows.forEach(function (row) {
+                                    console.log("Your loan is not approved");
+                                });
+                            });
                     }
-                    break;
-                case 3:
-                    console.log(" *** Pay Loan *** ");
-                    do {
-                        check = true;
-                        for (var i = 0; i < customerDetails.length; i++) {
-                            if (customerDetails[i].username == userInputName && customerDetails[i].password == userInputPass) {
-                                var paidAmount = Number(parseInt(prompt(InputDetailEnum_1.detail.loanAmount)));
-                                if (Number.isNaN(paidAmount) || paidAmount < 1) {
-                                    console.log("Please enter valid amount");
-                                    check = false;
-                                }
-                                else if (customerDetails[i].loanAmount < paidAmount) {
-                                    console.log("You are entering an amount greater than the loan amount.");
-                                }
-                                else {
-                                    console.log("You successfully paid the loan.");
-                                    customerDetails[i].loanAmount -= paidAmount;
-                                    customerDetails[i].loanLimit += paidAmount;
-                                    fs.writeFileSync(path.resolve(__dirname, InputDetailEnum_1.detail.bankDB), JSON.stringify(customerDetails, null, 2));
-                                    if (customerDetails[i].loanLimit > 0) {
-                                        customerDetails[i].loanApplicable = true;
-                                        fs.writeFileSync(path.resolve(__dirname, InputDetailEnum_1.detail.bankDB), JSON.stringify(customerDetails, null, 2));
-                                    }
-                                }
-                            }
-                        }
-                    } while (check == false);
-                    break;
-                case 4:
-                    console.log("  *** Your loan amount *** ");
-                    for (var i = 0; i < customerDetails.length; i++) {
-                        if (customerDetails[i].username == userInputName && customerDetails[i].password == userInputPass) {
-                            var viewBalance = customerDetails[i].loanAmount;
-                            console.log("You have taken a Rs.".concat(viewBalance, " loan from the bank"));
-                        }
-                    }
-                    break;
-                default:
-                    break;
-            }
-        } while (loanResponse != 5);
-    };
-    Bank.prototype.moneyTransfer = function () {
-        var userInputName = prompt(InputDetailEnum_1.detail.userInput);
-        var userInputPass = prompt(InputDetailEnum_1.detail.userPass);
-        for (var i = 0; i < customerDetails.length; i++) {
-            if (customerDetails[i].username == userInputName && customerDetails[i].password == userInputPass) {
-                var transferAmount = parseInt(prompt(InputDetailEnum_1.detail.moneyTransfer));
-                var receiverAccountNumber = parseInt(prompt(InputDetailEnum_1.detail.receiverAccountNo));
-                if (!transferAmount || !receiverAccountNumber || receiverAccountNumber.toString().length != 4 || transferAmount < 1) {
-                    console.log("Please enter valid input");
+                });
+            });
+        };
+        this.moneyTransfer = function () {
+            var userInputName = prompt(InputDetailEnum_1.detail.userInput);
+            var userInputPass = prompt(InputDetailEnum_1.detail.userPass);
+            var balanceAmount;
+            // Query for user authentication
+            var sqlOne = "SELECT * FROM user WHERE username = '".concat(userInputName, "' AND password = '").concat(userInputPass, "'");
+            db.all(sqlOne, [], function (err, rows) {
+                if (err)
+                    return console.log(err.message);
+                if (rows.length == 0) {
+                    console.log("Invalid username or password");
                 }
-                else if (transferAmount > customerDetails[i].amount) {
-                    console.log("Your account has insufficient balance.");
-                }
-                else {
-                    for (var i_1 = 0; i_1 < customerDetails.length; i_1++) {
-                        if (customerDetails[i_1].accountNo === receiverAccountNumber) {
-                            customerDetails[i_1].amount += transferAmount;
-                            fs.writeFileSync(path.resolve(__dirname, InputDetailEnum_1.detail.bankDB), JSON.stringify(customerDetails, null, 2));
-                            console.log("The money was transferred successfully.");
-                            if (customerDetails[i_1].amount > 100000) {
-                                customerDetails[i_1].accountType = InputDetailEnum_1.detail.currentAccount;
-                                fs.writeFileSync(path.resolve(__dirname, InputDetailEnum_1.detail.bankDB), JSON.stringify(customerDetails, null, 2));
+                rows.forEach(function (row) {
+                    balanceAmount = row.amount;
+                    var transferAmount = Number(parseInt(prompt(InputDetailEnum_1.detail.moneyTransfer)));
+                    var receiverAccountNumber = Number(parseInt(prompt(InputDetailEnum_1.detail.receiverAccountNo)));
+                    if (transferAmount > balanceAmount) {
+                        console.log("Insufficient funds to transfer");
+                    }
+                    else {
+                        // Query for updated sender balance amount 
+                        var balanceAfterTransfer_1 = balanceAmount - transferAmount;
+                        var transferQuery = "UPDATE user\n                               SET amount = ".concat(balanceAfterTransfer_1, "\n                               WHERE username = '").concat(userInputName, "'");
+                        db.run(transferQuery, function (err) {
+                            if (err) {
+                                return console.error(err.message);
                             }
-                        }
+                        });
+                        // Query for check receiver's account balance
+                        var receiverBalance;
+                        var receiverQuery = "SELECT * FROM user WHERE accountNo = '".concat(receiverAccountNumber, "'");
+                        db.all(receiverQuery, [], function (err, rows) {
+                            if (err)
+                                return console.log(err.message);
+                            rows.forEach(function (row) {
+                                receiverBalance = row.amount;
+                                var totalBalance = transferAmount + receiverBalance;
+                                // Update the receiver's account balance
+                                var updateQuery = "UPDATE user\n                               SET amount = ".concat(totalBalance, "\n                               WHERE accountNo = '").concat(receiverAccountNumber, "'");
+                                db.run(updateQuery, function (err) {
+                                    if (err) {
+                                        return console.error(err.message);
+                                    }
+                                    console.log("The amount was successfully transferred to the receiver account.");
+                                    console.log("The remaining balance in your account is ".concat(balanceAfterTransfer_1));
+                                });
+                            });
+                        });
                     }
-                    customerDetails[i].amount = customerDetails[i].amount - transferAmount;
-                    fs.writeFileSync(path.resolve(__dirname, InputDetailEnum_1.detail.bankDB), JSON.stringify(customerDetails, null, 2));
-                    if (customerDetails[i].amount <= 100000) {
-                        customerDetails[i].accountType = InputDetailEnum_1.detail.savingAccount;
-                        fs.writeFileSync(path.resolve(__dirname, InputDetailEnum_1.detail.bankDB), JSON.stringify(customerDetails, null, 2));
-                    }
-                }
-            }
-        }
-    };
+                });
+            });
+        };
+    }
     return Bank;
 }());
 exports.Bank = Bank;
