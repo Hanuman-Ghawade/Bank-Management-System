@@ -33,105 +33,103 @@ export class Admin implements userDetail{
     loanLimit: number
     loanApplied: boolean;
 
-    userDetails = (): void => {
-        console.table(customerDetails)
+    customerDetails = (): void => {
 
-    }
-    accountHolderBasedOnAmount = (): void => {
-        do {
-           var  response : number = parseInt(prompt(detail.amountHolder))
-            console.clear()
-            switch (response) {
-                case 1:
-                    const zeroBalanceData = customerDetails.filter( (ele :{amount :number}) => {
-                        return ele.amount == 0;
-                    })
-                    console.table(zeroBalanceData)
-                    break
-                case 2:
-
-                    const oneLakh = customerDetails.filter((ele:{amount :number}) =>{
-                        return ele.amount > 0 && ele.amount < 100000;
-                    })
-                    console.table(oneLakh)
-                    break
-                case 3:
-                    const more_than_oneLakh = customerDetails.filter((ele: { amount: number }) => {
-                        return ele.amount >= 100000;
-                    })
-                    console.table(more_than_oneLakh);
-                    break
-                default:
-                    break
-
-
-            }
-        } while (response != 4)
+        const userDetailsQuery: string = `SELECT * FROM user `;
+        db.all(userDetailsQuery, [], (err: { message: string }, rows: any[]) => {
+            if (err) return console.log(err.message);
+            rows.forEach((row) => {
+                console.log(` Name : ${row.Name}, Age : ${row.Age}, Mobile Number : ${row.mobileNumber}, Balance : Rs.${row.amount}, Loan Amount : Rs.${row.loanAmount}`)
+             
+            })
+        })
     }
 
+   deactivateAccount = (accountNumber: string) :void => {
+       const deleteAccountQuery: string = `SELECT username, password FROM user WHERE accountNo = '${accountNumber}' `;
+            db.all(deleteAccountQuery, [], (err: { message: string }, rows: any[]) => {
+                if (err) return console.log(err.message);
+                if (rows.length == 0) {
+                    console.log("Invalid account number");
+                }
+                rows.forEach((row) => {
+                    console.log(`${accountNumber} account number successfully deleted.`)
+    })
+    })
+}
     savingAccount = (): void => {
 
-        const authorizedUser = customerDetails.filter((ele: { accountType: string }) => {
-            return ele.accountType == detail.savingAccount;
+        const savingAccountQuery: string = `SELECT * FROM user WHERE accountType = 'Saving'`;
+        db.all(savingAccountQuery, [], (err: { message: string }, rows: any[]) => {
+            if (err) return console.log(err.message);
+            rows.forEach((row) => {
+                console.log(` Name : ${row.Name}, Age : ${row.Age}, Mobile Number : ${row.mobileNumber}, Amount : ${row.amount}`)
+
+            })
         })
-        console.table(authorizedUser);
     }
     currentAccount = (): void => {
 
-        const currentAccount: string = customerDetails.filter((ele: { accountType: string }) => {
-            return ele.accountType == detail.currentAccount;
+        const currentAccountQuery: string = `SELECT * FROM user WHERE accountType = 'Current'`;
+        db.all(currentAccountQuery, [], (err: { message: string }, rows: any[]) => {
+            if (err) return console.log(err.message);
+            rows.forEach((row) => {
+                console.log(` Name : ${row.Name}, Age : ${row.Age}, Mobile Number : ${row.mobileNumber},  Amount : Rs.${row.amount}`)
+
+            })
         })
-        console.table(currentAccount);
 
     }
     approveLoan = (): void =>  {
-       
-        var user: string = prompt(detail.userInput);
-
-            const ViewBalanceQuery: string = `SELECT amount , loanTaken FROM user`;
+       var totalUserAmount : number
+        var CustomerAccountNumber: string = prompt(detail.accountNumber);
+            const ViewBalanceQuery: string = `SELECT amount , loanTaken FROM user WHERE accountNo = ${CustomerAccountNumber}`;
             db.all(ViewBalanceQuery, [], (err: { message: string }, rows: any[]) => {
                 if (err) return console.log(err.message);
                 rows.forEach((row) => {
                     let userBalanceAmount : number = row.amount;
                     let userLoanAmount : number  = row.loanTaken;
-                    let totalUserAmount : number = userBalanceAmount + userLoanAmount
-                    console.log(totalUserAmount)
-
-                    let updateQuery: string = `UPDATE user
-                               SET amount = '${totalUserAmount}', loanTaken = 0
-                               WHERE loanApplied = 1 `;
-                    console.log("loan update")
-                    db.run(updateQuery, (err: { message: string }) => {
-                        if (err) {
-                            return console.error(err.message);
-                        }
-                        console.log("The loan was approved successfully..");
-    
-                })
+                    totalUserAmount = userBalanceAmount + userLoanAmount
             })  
+                let updateLoanQuery: string = `UPDATE user
+                               SET amount = '${totalUserAmount}', loanTaken = 0,loanApplied = 0
+                               WHERE accountNo = ${CustomerAccountNumber}`;
+                db.run(updateLoanQuery, (err: { message: string }) => {
+                    if (err) {
+                        return console.error(err.message);
+                    }
+                    console.log("The loan was approved successfully..");
+
+                })
     
                 })
     }
-    loanHolder = (): void =>{
+    loanHolder = (): void => {
+    
+        const userDetailsQuery: string = `SELECT * FROM user WHERE loanAmount > 0`;
+        db.all(userDetailsQuery, [], (err: { message: string }, rows: any[]) => {
+            if (err) return console.log(err.message);
+            rows.forEach((row) => {
+                console.log(` Name : ${row.Name}, Age : ${row.Age}, Mobile Number : ${row.mobileNumber},  Loan Amount : Rs.${row.loanAmount}`)
 
-        const loanUser = customerDetails.filter((ele:{loanAmount:number}) => {
-            return ele.loanAmount > 0;
+            })
         })
-        console.table(loanUser);
-
-
     }
     bankAmount = (): void => {
-        let BankCash: number = 0;
-        let LoanCash: number = 0;
+        let bankCash: number = 0;
+        let loanCash: number = 0;
         let count :number  = 0;
-        for (let i = 0; i < customerDetails.length; i++) {
-            BankCash += customerDetails[i].amount
-            LoanCash += customerDetails[i].loanAmount
-            count++
-        }
-        console.log(`The total amount in your bank is  Rs.${BankCash}.`);
-        console.log(`The total amount lent to the customer is Rs.${LoanCash}.`);
-        console.log(` The total number of customers is ${count}.`);
+        const userDetailsQuery: string = `SELECT * FROM user`;
+        db.all(userDetailsQuery, [], (err: { message: string }, rows: any[]) => {
+            if (err) return console.log(err.message);
+            rows.forEach((row) => {
+                bankCash += row.amount;
+                loanCash += row.loanAmount;
+                count ++
+            })
+            console.log(`The total amount in your bank is  Rs.${bankCash}.`);
+            console.log(`The total amount lent to the customer is Rs.${loanCash}.`);
+            console.log(`The total number of customers is ${count}.`);
+        })   
     }
 }

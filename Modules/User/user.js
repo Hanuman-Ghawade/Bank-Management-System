@@ -97,31 +97,6 @@ var User = /** @class */ (function () {
             // return the all input 
             return { name: name, age: age, mobileNumber: mobileNumber, email: email, birth: birth, accountNo: accountNo, accountType: accountType, username: username, password: password, amount: amount, loanApplicable: loanApplicable, loanTaken: loanTaken, loanAmount: loanAmount, loanLimit: loanLimit, loanApplied: loanApplied };
         };
-        // Details of the customer 
-        this.accessData = function () {
-            var check;
-            var _loop_1 = function () {
-                var check_1 = true;
-                userInputName = prompt(InputDetailEnum_1.detail.userInput);
-                userInputPass = prompt(InputDetailEnum_1.detail.userPass);
-                var selectQuery = "SELECT * FROM user WHERE username = '".concat(userInputName, "' AND password = '").concat(userInputPass, "'");
-                db.all(selectQuery, [], function (err, rows) {
-                    if (err)
-                        return console.log(err.message);
-                    if (rows.length == 0) {
-                        console.log("Invalid username or password");
-                        check_1 = false;
-                    }
-                    rows.forEach(function (row) {
-                        console.table("\n                         Name: ".concat(row.Name, " ,\n                         Mobile Number : ").concat(row.mobileNumber, ", \n                         Email : ").concat(row.email, ",\n                         Account Number : ").concat(row.accountNo, ",\n                         Balance Amount : Rs.").concat(row.amount, ",\n                         Loan Amount : Rs.").concat(row.loanAmount, "\n                         "));
-                    });
-                });
-            };
-            var userInputName, userInputPass;
-            do {
-                _loop_1();
-            } while (check == false);
-        };
     }
     return User;
 }());

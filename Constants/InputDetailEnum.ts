@@ -14,8 +14,10 @@ export enum detail {
     deposit = "Please enter the amount of the deposit:  ",
     withdraw = "Please enter the amount to withdraw.:  ",
     loanAmount = "Please enter the amount.:  ",
+    paidLoan = "Please enter the amount to repay the loan.:  ",
     userInput = "Please enter your user Id.:  ",
     userPass = "Please enter your password.:  ",
+    accountNumber = "Please enter customer account number.:  ",
     moneyTransfer = "Please enter amount to transfer:  " ,
     receiverAccountNo = "Please enter the account number of the receiver:  ",
     savingAccount = "Saving",
@@ -41,24 +43,24 @@ export enum detail {
     5. Exit   
     `,
     bankLogin = `Please choose  one option 
-    1. User Login
-    2. Admin Login
-    3. Exit
+    1. New Account Registration
+    2. User Login
+    3. Admin Login
+    4. Exit
     `,
     userLogin = `Please choose one  option :
     
-     1. New Account Registration
-     2. User information 
-     3. Deposit (Upto 7 Digit Amount)
-     4. Withdraw
-     5. View Balance
-     6. Loan Section 
-     7. Money Transfer 
-     8. Exit
+     1. Account Information 
+     2. Deposit
+     3. Withdraw
+     4. View Balance
+     5. Loan Section 
+     6. Money Transfer 
+     7. Exit
      `,
     adminLogin = `Please choose option :
-     1. User Details 
-     2. Account Holder details Based On amount
+     1. Customers Details 
+     2. Deactivate Account Number
      3. Saving Accounts  (Amount less than 1 Lakh)
      4. Current Accounts (Amount more than 1 Lakh)
      5. Approve Loan 
@@ -74,6 +76,7 @@ export enum detail {
     user = "./Modules/User/user.js",
     createAdminTableQuery = "CREATE TABLE admin (Name TEXT, Age INT, mobileNumber INTEGER, email TEXT, birth TEXT, username TEXT, password TEXT)",
     insertAdminQuery = "INSERT INTO admin VALUES(?,?,?,?,?,?,?)",
+    deactivateAccountNumber = "Please enter the account number:  "
     // depositQuery = `SELECT * FROM user WHERE username = '${userInputName}' AND password = '${userInputPass}'`,
 
 }

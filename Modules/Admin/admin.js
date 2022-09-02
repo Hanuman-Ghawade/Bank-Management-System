@@ -18,100 +18,97 @@ var adminDetails = JSON.parse(adminData);
 exports.adminDetails = adminDetails;
 var Admin = /** @class */ (function () {
     function Admin() {
-        this.userDetails = function () {
-            console.table(customerDetails);
+        this.customerDetails = function () {
+            var userDetailsQuery = "SELECT * FROM user ";
+            db.all(userDetailsQuery, [], function (err, rows) {
+                if (err)
+                    return console.log(err.message);
+                rows.forEach(function (row) {
+                    console.log(" Name : ".concat(row.Name, ", Age : ").concat(row.Age, ", Mobile Number : ").concat(row.mobileNumber, ", Balance : Rs.").concat(row.amount, ", Loan Amount : Rs.").concat(row.loanAmount));
+                });
+            });
         };
-        this.accountHolderBasedOnAmount = function () {
-            do {
-                var response = parseInt(prompt(InputDetailEnum_1.detail.amountHolder));
-                console.clear();
-                switch (response) {
-                    case 1:
-                        var zeroBalanceData = customerDetails.filter(function (ele) {
-                            return ele.amount == 0;
-                        });
-                        console.table(zeroBalanceData);
-                        break;
-                    case 2:
-                        var oneLakh = customerDetails.filter(function (ele) {
-                            return ele.amount > 0 && ele.amount < 100000;
-                        });
-                        console.table(oneLakh);
-                        break;
-                    case 3:
-                        var more_than_oneLakh = customerDetails.filter(function (ele) {
-                            return ele.amount >= 100000;
-                        });
-                        console.table(more_than_oneLakh);
-                        break;
-                    default:
-                        break;
+        this.deactivateAccount = function (accountNumber) {
+            var deleteAccountQuery = "SELECT username, password FROM user WHERE accountNo = '".concat(accountNumber, "' ");
+            db.all(deleteAccountQuery, [], function (err, rows) {
+                if (err)
+                    return console.log(err.message);
+                if (rows.length == 0) {
+                    console.log("Invalid account number");
                 }
-            } while (response != 4);
+                rows.forEach(function (row) {
+                    console.log("".concat(accountNumber, " account number successfully deleted."));
+                });
+            });
         };
         this.savingAccount = function () {
-            var authorizedUser = customerDetails.filter(function (ele) {
-                return ele.accountType == InputDetailEnum_1.detail.savingAccount;
+            var savingAccountQuery = "SELECT * FROM user WHERE accountType = 'Saving'";
+            db.all(savingAccountQuery, [], function (err, rows) {
+                if (err)
+                    return console.log(err.message);
+                rows.forEach(function (row) {
+                    console.log(" Name : ".concat(row.Name, ", Age : ").concat(row.Age, ", Mobile Number : ").concat(row.mobileNumber, ", Amount : ").concat(row.amount));
+                });
             });
-            console.table(authorizedUser);
         };
         this.currentAccount = function () {
-            var currentAccount = customerDetails.filter(function (ele) {
-                return ele.accountType == InputDetailEnum_1.detail.currentAccount;
+            var currentAccountQuery = "SELECT * FROM user WHERE accountType = 'Current'";
+            db.all(currentAccountQuery, [], function (err, rows) {
+                if (err)
+                    return console.log(err.message);
+                rows.forEach(function (row) {
+                    console.log(" Name : ".concat(row.Name, ", Age : ").concat(row.Age, ", Mobile Number : ").concat(row.mobileNumber, ",  Amount : Rs.").concat(row.amount));
+                });
             });
-            console.table(currentAccount);
         };
         this.approveLoan = function () {
-            console.log("The loan was approved successfully..");
-            var ViewBalanceQuery = "SELECT amount , loantaken FROM user";
+            var totalUserAmount;
+            var CustomerAccountNumber = prompt(InputDetailEnum_1.detail.accountNumber);
+            var ViewBalanceQuery = "SELECT amount , loanTaken FROM user WHERE accountNo = ".concat(CustomerAccountNumber);
             db.all(ViewBalanceQuery, [], function (err, rows) {
                 if (err)
                     return console.log(err.message);
                 rows.forEach(function (row) {
                     var userBalanceAmount = row.amount;
                     var userLoanAmount = row.loanTaken;
-                    var totalUserAmount = userBalanceAmount + userLoanAmount;
-                    console.log(totalUserAmount);
-                    var ViewBalanceQuery = "SELECT amount , loanTaken FROM user";
-                    db.all(ViewBalanceQuery, [], function (err, rows) {
-                        if (err)
-                            return console.log(err.message);
-                        rows.forEach(function (row) {
-                            var userBalanceAmount = row.amount;
-                            var userLoanAmount = row.loanTaken;
-                            var totalUserAmount = userBalanceAmount + userLoanAmount;
-                            console.log(totalUserAmount);
-                            var updateQuery = "UPDATE user\n                               SET amount = '".concat(totalUserAmount, "'\n                               WHERE loanApplied = 1 ");
-                            console.log("loan update");
-                            db.run(updateQuery, function (err) {
-                                if (err) {
-                                    return console.error(err.message);
-                                }
-                                console.log("The loan was approved successfully..");
-                            });
-                        });
-                    });
+                    totalUserAmount = userBalanceAmount + userLoanAmount;
+                });
+                var updateLoanQuery = "UPDATE user\n                               SET amount = '".concat(totalUserAmount, "', loanTaken = 0,loanApplied = 0\n                               WHERE accountNo = ").concat(CustomerAccountNumber);
+                db.run(updateLoanQuery, function (err) {
+                    if (err) {
+                        return console.error(err.message);
+                    }
+                    console.log("The loan was approved successfully..");
                 });
             });
         };
         this.loanHolder = function () {
-            var loanUser = customerDetails.filter(function (ele) {
-                return ele.loanAmount > 0;
+            var userDetailsQuery = "SELECT * FROM user WHERE loanAmount > 0";
+            db.all(userDetailsQuery, [], function (err, rows) {
+                if (err)
+                    return console.log(err.message);
+                rows.forEach(function (row) {
+                    console.log(" Name : ".concat(row.Name, ", Age : ").concat(row.Age, ", Mobile Number : ").concat(row.mobileNumber, ",  Loan Amount : Rs.").concat(row.loanAmount));
+                });
             });
-            console.table(loanUser);
         };
         this.bankAmount = function () {
-            var BankCash = 0;
-            var LoanCash = 0;
+            var bankCash = 0;
+            var loanCash = 0;
             var count = 0;
-            for (var i = 0; i < customerDetails.length; i++) {
-                BankCash += customerDetails[i].amount;
-                LoanCash += customerDetails[i].loanAmount;
-                count++;
-            }
-            console.log("The total amount in your bank is  Rs.".concat(BankCash, "."));
-            console.log("The total amount lent to the customer is Rs.".concat(LoanCash, "."));
-            console.log(" The total number of customers is ".concat(count, "."));
+            var userDetailsQuery = "SELECT * FROM user";
+            db.all(userDetailsQuery, [], function (err, rows) {
+                if (err)
+                    return console.log(err.message);
+                rows.forEach(function (row) {
+                    bankCash += row.amount;
+                    loanCash += row.loanAmount;
+                    count++;
+                });
+                console.log("The total amount in your bank is  Rs.".concat(bankCash, "."));
+                console.log("The total amount lent to the customer is Rs.".concat(loanCash, "."));
+                console.log("The total number of customers is ".concat(count, "."));
+            });
         };
     }
     return Admin;

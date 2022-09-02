@@ -83,7 +83,7 @@ export class User implements userDetail{
 
             age.setTime(ageMS);
 
-            var ageYear: number = age.getFullYear() - 1970;
+            let ageYear: number = age.getFullYear() - 1970;
 
             if (birth.match(datePattern) == null) {
                 console.log("Please enter valid date ");
@@ -151,35 +151,6 @@ export class User implements userDetail{
     return { name, age, mobileNumber, email, birth, accountNo, accountType, username, password, amount, loanApplicable, loanTaken, loanAmount, loanLimit, loanApplied };
   
     }
-
-    // Details of the customer 
-
-        accessData = () :void => {
-            let check :boolean;
-            do{
-            let check = true;
-            var userInputName : string = prompt(detail.userInput);
-            var userInputPass : string = prompt(detail.userPass);
-            const selectQuery : string = `SELECT * FROM user WHERE username = '${userInputName}' AND password = '${userInputPass}'`;
-                db.all(selectQuery, [], (err: { message: string }, rows: any[]) => {
-                    if (err) return console.log(err.message);
-                    if(rows.length == 0 ){
-                        console.log("Invalid username or password");
-                        check = false;
-                    }
-                    rows.forEach((row) => {
-                        console.table(`
-                         Name: ${row.Name} ,
-                         Mobile Number : ${row.mobileNumber}, 
-                         Email : ${row.email},
-                         Account Number : ${row.accountNo},
-                         Balance Amount : Rs.${row.amount},
-                         Loan Amount : Rs.${row.loanAmount}
-                         `);
-                    })
-                })
-            }while(check == false)       
-         }
 }
         
 
